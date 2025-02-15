@@ -1,38 +1,60 @@
-# sv
+Below is a revised version of your README file with clearer instructions and proper formatting:
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+---
 
-## Creating a project
+# TailorMadeBo - Private Barista Beverage
 
-If you're seeing this, you've probably already done this step. Congrats!
+This project is built with **SvelteKit 5** and **Supabase**. Follow the instructions below to set up and run the project.
 
-```bash
-# create a new project in the current directory
-npx sv create
+## Prerequisites
 
-# create a new project in my-app
-npx sv create my-app
-```
+- [Node.js](https://nodejs.org/) installed on your machine.
+- A [Supabase](https://supabase.com/) account.
 
-## Developing
+## Setup Instructions
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### 1. Clone the Repository
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+git clone <repository-url>
+cd <repository-directory>
 ```
 
-## Building
+### 2. Configure Supabase
 
-To create a production version of your app:
+Before running the project, you need to set up your Supabase environment variables. Create a `.env` file in the root directory and add the following:
+
+```bash
+SUPABASE_URL=<your-supabase-url>
+SUPABASE_ANON_KEY=<your-supabase-anon-key>
+```
+
+> **Note:** Replace `<your-supabase-url>` and `<your-supabase-anon-key>` with your actual Supabase credentials.
+
+### 3. Install Dependencies
+
+First, install the Supabase-related dependencies:
+
+```bash
+npm install @supabase/supabase-js @supabase/ssr
+```
+
+Then, install the remaining dependencies:
+
+```bash
+npm install
+```
+
+### 4. Build the Project
 
 ```bash
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+### 5. Run the Development Server
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```bash
+npm run dev
+```
+
+Now, open your browser and navigate to [http://localhost:5173](http://localhost:5173) to see your application in action.
