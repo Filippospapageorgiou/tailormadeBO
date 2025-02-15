@@ -38,6 +38,9 @@ First, install the Supabase-related dependencies:
 ```bash
 npm install @supabase/supabase-js @supabase/ssr
 ```
+```bash
+npm i lucide-svelte
+```
 
 Then, install the remaining dependencies:
 

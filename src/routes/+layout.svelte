@@ -1,7 +1,8 @@
 <script>
+	import "../app.css"
 	import { invalidate } from '$app/navigation'
 	import { onMount } from 'svelte'
-	import { goto } from '$app/navigation';
+	
   
 	let { data, children } = $props()
 	let { session, supabase } = $derived(data)
@@ -16,23 +17,15 @@
 	  return () => data.subscription.unsubscribe()
 	})
 
-	const logout = async () => {
-  	const { error } = await supabase.auth.signOut()
-  	if (error) {
-    	console.error(error)
-  	} else {
-    	await invalidate('supabase:auth') // Ακυρώνει το cache
-    	goto('/auth') // Ανακατεύθυνση στο /auth
-  	}
-}
+	/*const logout = async () => {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error(error)
+    } else {
+      await invalidate('supabase:auth')
+      window.location.href = '/auth' // Κάνει πλήρες reload
+    }*/
 </script>
   
-<header>
-	<nav>
-	  <a href="/">Home</a>
-	</nav>
-	<button onclick={logout}>Logout</button>
-  </header>
-  <main>
-	{@render children()}
-</main>
+
+{@render children()}

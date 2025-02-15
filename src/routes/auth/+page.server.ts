@@ -1,6 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import type { SignUpFormData, LoginFormData, User } from '$lib/types/database.types';
+import { fail } from '@sveltejs/kit';
 
 export const actions: Actions = {
   signup: async ({ request, locals: { supabase } }) => {
@@ -44,7 +45,7 @@ export const actions: Actions = {
     throw redirect(303, '/');
   },
 
-  login: async ({ request, locals: { supabase } }) => {
+  login: async ({ request, locals ,locals: { supabase } }) => {
     const formData = await request.formData();
     const data: LoginFormData = {
       email: formData.get('email') as string,
@@ -52,13 +53,11 @@ export const actions: Actions = {
     };
 
     // Προσπάθεια login
-    const { data: { user }, error } = await supabase.auth.signInWithPassword(data);
-
-    if (error) {
-      console.error('Login error:', error);
-      throw redirect(303, '/auth/error');
+    const { data: { user }, error:signInError } = await supabase.auth.signInWithPassword(data);
+    if (signInError) {
+      return fail(400, { message: 'user doesnt exist with email or password' });
     }
-
+    
     if (user) {
       // Έλεγχος αν ο χρήστης υπάρχει στη βάση
       const { data: dbUser } = await supabase

@@ -1,60 +1,129 @@
+<!-- LoginForm.svelte -->
 <script lang="ts">
-    import type { PageData } from './$types';
+  import { enhance } from '$app/forms';
+  import { type SubmitFunction } from "@sveltejs/kit";
+  import Button from '$lib/components/ui/Button.svelte';
+  import type { ActionResult } from "@sveltejs/kit";
+  
+  let loading: boolean = $state(false);
+  let error: string = $state('');
+  let emailError: boolean = $state(false);
+  let passwordError: boolean = $state(false);
+  
+  const handleLogin: SubmitFunction = () => {
+    loading = true;
+    emailError = false;
+    passwordError = false;
+    error = '';
     
-    let { data } = $props<{ data: PageData }>();
-    </script>
-    
-    <div class="min-h-screen flex items-center justify-center bg-gray-50">
-      <div class="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-        <div class="text-center">
-          <h2 class="text-3xl font-bold">Welcome back</h2>
-          <p class="mt-2 text-gray-600">Please sign in to your account</p>
-        </div>
-    
-        <form method="POST" action="?/login" class="mt-8 space-y-6">
-          <div class="space-y-4">
-            <div>
-              <label for="email" class="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-    
-            <div>
-              <label for="password" class="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-    
-          <div class="flex items-center justify-between gap-4">
-            <button
-              type="submit"
-              class="flex-1 bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Login
-            </button>
-            
-            <button
-              formaction="?/signup"
-              class="flex-1 bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Sign up
-            </button>
-          </div>
-        </form>
+    return async ({ update, result }: { update: any, result: ActionResult }) => {
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          update();
+          resolve();
+        }, 1000);
+        loading = false;
+        if (result.type === 'failure') {
+          error = result.data?.message || 'Login failed';
+          
+          // Set field-specific errors if they exist in the result
+          if (result.data?.fields) {
+            emailError = !!result.data.fields.email;
+            passwordError = !!result.data.fields.password;
+          } else {
+            // If no specific fields, highlight both
+            emailError = true;
+            passwordError = true;
+          }
+        }
+      });
+    };
+  };
+</script>
+
+<div class="min-h-screen flex flex-col md:flex-row">
+  <!-- Left side - Logo Section -->
+  <div class="hidden md:flex md:w-1/2 bg-white items-center justify-center relative">
+    <div class="w-64 h-64">
+      <img
+        src="/auth.jpg"
+        alt="Tailor Made Coffee Roasters"
+        class="w-full h-full object-contain"
+      />
+    </div>
+  </div>
+
+  <!-- Right side - Login Form -->
+  <div class="w-full md:w-1/2 min-h-screen flex items-center justify-center bg-neutral-50 p-4">
+    <div class="w-full max-w-md space-y-8 bg-white rounded-xl shadow-lg p-8">
+      <div class="text-center">
+        <h2 class="text-2xl font-bold text-gray-900">Welcome Back</h2>
+        <p class="mt-2 text-sm text-gray-600">Log in</p>
       </div>
+
+      <form method="POST" action="?/login" use:enhance={handleLogin} class="mt-8 space-y-6">
+        {#if error}
+          <p class="text-sm text-red-600 font-medium">{error}</p>
+        {/if}
+        
+        <div class="space-y-4">
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              class="mt-1 block w-full rounded-lg border 
+                     {emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#C4A484] focus:ring-[#C4A484]'} 
+                     px-3 py-2 shadow-sm focus:outline-none focus:ring-1
+                     placeholder:text-gray-400"
+              placeholder="name@company.com"
+            />
+            {#if emailError}
+              <p class="mt-1 text-xs text-red-600">Please enter a valid email address</p>
+            {/if}
+          </div>
+
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              placeholder="*********"
+              class="mt-1 block w-full rounded-lg border 
+                     {passwordError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#C4A484] focus:ring-[#C4A484]'} 
+                     px-3 py-2 shadow-sm focus:outline-none focus:ring-1"
+            />
+            {#if passwordError}
+              <p class="mt-1 text-xs text-red-600">Please enter your password</p>
+            {/if}
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end">
+          <a href="/reset-password" class="text-sm font-medium text-[#C4A484] hover:text-[#b39476]">
+            Forgot your password?
+          </a>
+        </div>
+
+        <div>
+          <Button data={loading}></Button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
+
+<style>
+  :global(body) {
+    margin: 0;
+    padding: 0;
+  }
+</style>
