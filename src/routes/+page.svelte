@@ -63,10 +63,10 @@
   <!-- Central Content -->
   <main class="absolute inset-0 flex flex-col items-center justify-center text-white z-40">
     <div class="text-center px-4 max-w-4xl mx-auto">
-      <h1 class="text-6xl font-light mb-8 tracking-widest transform translate-y-0">
+      <h1 class="text-5xl font-light mb-8 tracking-widest transform translate-y-0 font-display">
         TAILOR MADE COFFEE
       </h1>
-      <p class="text-2xl tracking-wider mb-12 font-light">
+      <p class="text-2xl tracking-wider mb-12 font-light font-display">
         SEE THE WORLD THROUGH COFFEE
       </p>
     </div>

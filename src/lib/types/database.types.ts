@@ -52,7 +52,6 @@ export interface Beverage {
   image_url: string | null;
   created_at: string;
   updated_at: string;
-  recipe_ingredients: RecipeIngredient[];
 }
 
 // Page Data types
