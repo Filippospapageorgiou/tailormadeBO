@@ -44,7 +44,7 @@
 <div class="min-h-screen flex flex-col md:flex-row">
   <!-- Left side - Logo Section -->
   <div class="hidden md:flex md:w-1/2 bg-white items-center justify-center relative">
-    <div class="w-64 h-64">
+    <div class="max-w-96 max-h-96">
       <img
         src="/auth.jpg"
         alt="Tailor Made Coffee Roasters"

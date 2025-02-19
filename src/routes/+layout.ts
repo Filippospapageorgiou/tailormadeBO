@@ -1,6 +1,7 @@
 import { createBrowserClient, createServerClient, isBrowser } from '@supabase/ssr'
 import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public'
 import type { LayoutLoad } from './$types'
+import type { User } from '$lib/types/database.types'
 
 export const load: LayoutLoad = async ({ data, depends, fetch }) => {
   /**
@@ -35,9 +36,21 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
     data: { session },
   } = await supabase.auth.getSession()
 
-  const {
+  /*const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser()*/
 
-  return { session, supabase, user }
+  let userData: User | null = null
+
+  if(session?.user){
+    const { data:user } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id',session.user.id)
+    .single<User>()
+
+    userData = user
+  }
+
+  return { session, supabase, user: userData }
 }

@@ -1,11 +1,14 @@
 <!-- Navbar.svelte -->
 <script lang="ts">
-    import { onMount } from 'svelte';
     import { slide } from 'svelte/transition';
+    import { Settings } from 'lucide-svelte';
+    import { userStore } from '$lib/stores/userStore';
+    import { onMount } from 'svelte';
     
-    let logo: string = $state('/logo.png')
+    let logo = $state('/logo.png')
     let isMenuOpen = $state(false);
     let isMobile = $state(false);
+    let isAdmin = $state(false);
 
     const menuItems = $state([
         { title: 'ΦΙΛΟΣΟΦΙΑ', path: '/philosophy' },
@@ -14,11 +17,15 @@
         { title: 'ΕΠΙΚΟΙΝΩΝΙΑ', path: '/contact' }
     ]);
     
+    $effect(() => {
+        isAdmin = $userStore.user?.role === 'admin';
+    });
+
+    function checkMobile() {
+        isMobile = window.innerWidth < 768;
+    }
+    
     onMount(() => {
-        const checkMobile = () => {
-            isMobile = window.innerWidth < 768;
-        };
-        
         checkMobile();
         window.addEventListener('resize', checkMobile);
         
@@ -66,7 +73,7 @@
             </button>
 
             <!-- Desktop Menu -->
-            <div class="hidden md:flex space-x-10 items-center">
+            <div class="hidden md:flex items-center space-x-10">
                 {#each menuItems as { title, path }}
                     <a 
                         href={path}
@@ -80,6 +87,15 @@
                         {title}
                     </a>
                 {/each}
+                {#if isAdmin}
+                    <a 
+                        href="/settings"
+                        class="text-[#8B6B4A] hover:text-[#6F563C] transition-colors duration-300"
+                        aria-label="Settings"
+                    >
+                        <Settings size={24} />
+                    </a>
+                {/if}
             </div>
         </div>
 
@@ -107,6 +123,24 @@
                             {title}
                         </a>
                     {/each}
+                    {#if isAdmin}
+                        <a
+                            href="/settings"
+                            class="relative text-[#8B6B4A] hover:text-[#6F563C] tracking-widest text-sm font-black uppercase
+                                   transition-all duration-300 ease-in-out transform hover:-translate-y-px
+                                   drop-shadow-sm hover:drop-shadow-lg
+                                   after:absolute after:w-0 after:h-0.5 after:bg-[#6F563C] 
+                                   after:left-0 after:bottom-[-4px] after:transition-all after:duration-300
+                                   hover:after:w-full
+                                   flex items-center gap-2"
+                            onclick={() => {
+                                isMenuOpen = false;
+                                document.body.style.overflow = 'auto';
+                            }}
+                        >
+                            <Settings size={20} />
+                        </a>
+                    {/if}
                 </div>
             </div>
         {/if}
