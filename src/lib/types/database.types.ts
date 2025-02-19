@@ -28,6 +28,7 @@ export interface Session {
 export interface Ingredient {
   id: number;
   name: string;
+  category?: string;
   description?: string;
   measurement_unit: string;
   created_at: string;
@@ -71,4 +72,14 @@ export interface SignUpFormData {
 export interface LoginFormData {
   email: string;
   password: string;
+}
+
+// Προσθέστε αυτό στο database.types.ts
+export interface SettingsPageData {
+  ingredients: Ingredient[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  categories: string[];
+  units: string[];
 }
