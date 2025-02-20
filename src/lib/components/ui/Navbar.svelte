@@ -23,6 +23,10 @@
 
     function checkMobile() {
         isMobile = window.innerWidth < 768;
+        if (!isMobile && isMenuOpen) {
+            isMenuOpen = false;
+            document.body.style.overflow = 'auto';
+        }
     }
     
     onMount(() => {
@@ -102,10 +106,10 @@
         <!-- Mobile Menu -->
         {#if isMenuOpen && isMobile}
             <div
-                class="md:hidden fixed top-23 left-0 w-full h-[calc(100vh-44rem)] bg-white/90 shadow-xl backdrop-blur-md overflow-y-auto"
+                class="md:hidden fixed inset-x-0 top-24 h-[calc(100vh-5rem)] bg-white/90 shadow-xl backdrop-blur-md"
                 transition:slide={{ duration: 500, delay: 0 }}
             >
-                <div class="flex flex-col space-y-4 p-6">
+                <div class="flex flex-col space-y-6 p-8">
                     {#each menuItems as { title, path }, i}
                         <a
                             href={path}
