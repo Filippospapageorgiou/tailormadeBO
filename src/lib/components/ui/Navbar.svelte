@@ -1,6 +1,6 @@
 <!-- Navbar.svelte -->
 <script lang="ts">
-    import { slide } from 'svelte/transition';
+    import { slide, fade } from 'svelte/transition';
     import { Settings } from 'lucide-svelte';
     import { userStore } from '$lib/stores/userStore';
     import { onMount } from 'svelte';
@@ -103,10 +103,10 @@
         {#if isMenuOpen && isMobile}
             <div
                 class="md:hidden fixed top-23 left-0 w-full h-[calc(100vh-44rem)] bg-white/90 shadow-xl backdrop-blur-md overflow-y-auto"
-                transition:slide={{ duration: 300 }}
+                transition:slide={{ duration: 500, delay: 0 }}
             >
                 <div class="flex flex-col space-y-4 p-6">
-                    {#each menuItems as { title, path }}
+                    {#each menuItems as { title, path }, i}
                         <a
                             href={path}
                             class="relative text-[#8B6B4A] hover:text-[#6F563C] tracking-widest text-sm font-black uppercase
@@ -119,6 +119,7 @@
                                 isMenuOpen = false;
                                 document.body.style.overflow = 'auto';
                             }}
+                            in:fade={{ duration: 700, delay: 300 * (i + 1) }}
                         >
                             {title}
                         </a>
@@ -137,6 +138,7 @@
                                 isMenuOpen = false;
                                 document.body.style.overflow = 'auto';
                             }}
+                            in:fade={{ duration: 300, delay: 150 * (menuItems.length + 1) }}
                         >
                             <Settings size={20} />
                         </a>
