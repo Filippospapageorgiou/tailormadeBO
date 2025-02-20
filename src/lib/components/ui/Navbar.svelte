@@ -10,6 +10,7 @@
     let isMobile = $state(false);
     let isAdmin = $state(false);
 
+    
     const menuItems = $state([
         { title: 'ΦΙΛΟΣΟΦΙΑ', path: '/philosophy' },
         { title: 'ΣΥΝΤΑΓΕΣ', path: '/recipes' },
