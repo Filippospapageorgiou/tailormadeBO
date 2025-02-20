@@ -106,10 +106,10 @@
         <!-- Mobile Menu -->
         {#if isMenuOpen && isMobile}
             <div
-                class="md:hidden fixed inset-x-0 top-24 h-[calc(100vh-5rem)] bg-white/90 shadow-xl backdrop-blur-md"
+                class="md:hidden fixed left-0 right-0 top-20 bottom-0 bg-white/90 shadow-xl backdrop-blur-md"
                 transition:slide={{ duration: 500, delay: 0 }}
             >
-                <div class="flex flex-col space-y-6 p-8">
+                <div class="flex flex-col space-y-8 p-8 pt-12">
                     {#each menuItems as { title, path }, i}
                         <a
                             href={path}
