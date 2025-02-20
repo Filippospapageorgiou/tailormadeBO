@@ -66,7 +66,7 @@
       <h1 class="text-5xl font-light mb-8 tracking-widest transform translate-y-0 font-display">
         TAILOR MADE COFFEE
       </h1>
-      <p class="text-2xl tracking-wider mb-12 font-light font-display">
+      <p class="text-2xl tracking-wider mb-12 font-light font-display text-white">
         SEE THE WORLD THROUGH COFFEE
       </p>
     </div>

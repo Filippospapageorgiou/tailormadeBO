@@ -89,7 +89,7 @@
                 {/each}
                 {#if isAdmin}
                     <a 
-                        href="/settings"
+                        href="/settings/ingredients"
                         class="text-[#8B6B4A] hover:text-[#6F563C] transition-colors duration-300"
                         aria-label="Settings"
                     >
@@ -126,7 +126,7 @@
                     {/each}
                     {#if isAdmin}
                         <a
-                            href="/settings"
+                            href="/settings/ingredients"
                             class="relative text-[#8B6B4A] hover:text-[#6F563C] tracking-widest text-sm font-black uppercase
                                    transition-all duration-300 ease-in-out transform hover:-translate-y-px
                                    drop-shadow-sm hover:drop-shadow-lg
