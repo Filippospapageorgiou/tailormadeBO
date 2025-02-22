@@ -1,7 +1,7 @@
 <!-- routes/philosophy/+page.svelte -->
 <script lang="ts">
     import type { PageData } from './$types';
-    import Navbar from '$lib/components/ui/Navbar.svelte';
+    import Navbar from '$lib/components/Navbar.svelte';
     import { fade } from 'svelte/transition';
     import { onMount } from 'svelte';
     

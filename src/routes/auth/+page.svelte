@@ -2,7 +2,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { type SubmitFunction } from "@sveltejs/kit";
-  import Button from '$lib/components/ui/Button.svelte';
+  import Button from '$lib/components/Button.svelte';
   import type { ActionResult } from "@sveltejs/kit";
   
   let loading: boolean = $state(false);
@@ -17,26 +17,19 @@
     error = '';
     
     return async ({ update, result }: { update: any, result: ActionResult }) => {
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          update();
-          resolve();
-        }, 1000);
-        loading = false;
-        if (result.type === 'failure') {
-          error = result.data?.message || 'Login failed';
-          
-          // Set field-specific errors if they exist in the result
-          if (result.data?.fields) {
-            emailError = !!result.data.fields.email;
-            passwordError = !!result.data.fields.password;
-          } else {
-            // If no specific fields, highlight both
-            emailError = true;
-            passwordError = true;
-          }
+      loading = false;
+      await update();
+      
+      if (result.type === 'failure') {
+        error = result.data?.message || 'Login failed';
+        if (result.data?.fields) {
+          emailError = !!result.data.fields.email;
+          passwordError = !!result.data.fields.password;
+        } else {
+          emailError = true;
+          passwordError = true;
         }
-      });
+      }
     };
   };
 </script>

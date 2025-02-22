@@ -2,7 +2,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
-  import Navbar from '$lib/components/ui/Navbar.svelte';
+  import Navbar from '$lib/components/Navbar.svelte';
   
   const images : string[] = $state([
     '/TAILOR MADE PRESENTATION 2024_page-0002.jpg',
