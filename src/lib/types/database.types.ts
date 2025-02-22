@@ -30,7 +30,7 @@ export interface Ingredient {
   name: string;
   category?: string;
   description?: string;
-  measurement_unit: string;
+  measurement_unit?: string;
   created_at: string;
   updated_at: string;
 }
