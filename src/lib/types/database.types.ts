@@ -24,13 +24,15 @@ export interface Session {
   expires_at?: number;
 }
 
-// Beverage related types
+
+
 export interface Ingredient {
   id: number;
   name: string;
   category?: string;
   description?: string;
   measurement_unit?: string;
+  recipe_ingredients: { count: number }[]; 
   created_at: string;
   updated_at: string;
 }

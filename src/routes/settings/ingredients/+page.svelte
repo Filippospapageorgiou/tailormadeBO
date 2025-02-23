@@ -2,9 +2,10 @@
     import type { Ingredient } from "$lib/types/database.types";
     import type { PageData } from "./$types";
     import { fade } from 'svelte/transition';
-    import { Search, Plus,Pencil, Trash2 } from 'lucide-svelte';
+    import { Search, Plus,Pencil } from 'lucide-svelte';
     import { onMount } from "svelte";
-    import { enhance } from '$app/forms';
+    import MyAlertDialog from "$lib/components/ui/MyAlertDialog.svelte.svelte";
+    
 	
     
     let { data }: { data: PageData } = $props();
@@ -13,6 +14,7 @@
     
     let searchQuery = $state('');
     let mounted = $state(false);
+    
 
     onMount(() => {
         setTimeout(() => {
@@ -20,27 +22,22 @@
         }, 0);
     });
 
+
 	const handleEdit = (id: number) => {
         console.log('Edit ingredient:', id);
-        // Θα προσθέσουμε τη λογική εδώ
     };
-
-	const handleDeleteClick = (id: number) => {
-		console.log('Delete ingredient: ',id);
-	}
-
 </script>
 
 {#if mounted}
-<div class="space-y-4 pl-3 pb-3.5" transition:fade={{ duration: 800, delay: 200 }}>
+<div class="space-y-4 pl-3 pb-3.5" transition:fade={{ duration: 400, delay: 100 }}>
     <!-- Header Section -->
-    <div class="flex flex-col mx-auto pt-2" in:fade={{ duration: 800, delay: 300 }}>
+    <div class="flex flex-col mx-auto pt-2" in:fade={{ duration: 400, delay: 150 }}>
         <p class="text-sm text-[#8B6B4A]">Διαθέσιμα Συστατικά: {total}</p>
     </div>
 
     <!-- Search and Actions Bar -->
     <div class="flex flex-col sm:flex-row gap-4 items-center justify-between"
-         in:fade={{ duration: 800, delay: 400 }}>
+         in:fade={{ duration: 500, delay: 200 }}>
         <div class="relative w-full sm:w-96">
             <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
@@ -62,9 +59,9 @@
         </button>
     </div>
 
-     <!-- Ingredients Grid -->
+     
 	 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-	 in:fade={{ duration: 800, delay: 500 }}>
+	 in:fade={{ duration: 500, delay: 300 }}>
 	{#each ingredients as ingredient (ingredient.id)}
 		<div 
 			class="group bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300
@@ -81,14 +78,34 @@
 				>
 					<Pencil size={16} />
 				</button>
-				<button
-    				onclick={() => handleDeleteClick(ingredient.id)}
-    				class="p-1.5 rounded-full bg-white shadow-sm hover:shadow-md
-          			text-red-500 hover:text-red-600 transition-all duration-200
-           			border border-transparent hover:border-red-200"
-					>
-    				<Trash2 size={16} />
-				</button>
+				<MyAlertDialog 
+                    buttonText="Open Dialog" 
+                    preventScroll={true}
+                    ingredientId={ingredient.id}
+                    ingredientName={ingredient.name}
+                >
+                    {#snippet title()}
+                        Είστε σίγουροι ότι θέλετε να διαγραψέτε αύτο το Συστατικό με όνομα {ingredient.name}
+                    {/snippet}
+                    {#snippet description()}
+                        {#if ingredient.recipe_ingredients[0]?.count > 0}
+                            <div class="text-amber-600 font-medium text-sm">
+                                <span class="flex items-center gap-2">
+                                    ⚠️ Προσοχή! 
+                                    <span class="font-normal">
+                                         συστατικό χρησιμοποιείται σε 
+                                        <span class="font-semibold">{ingredient.recipe_ingredients[0]?.count}</span> 
+                                        {ingredient.recipe_ingredients[0]?.count === 1 ? 'συνταγή' : 'συνταγές'}
+                                    </span>
+                                </span>
+                            </div>
+                        {:else}
+                            <div class="text-neutral-600 text-sm">
+                            Μπορείτε να προχωρήσετε με τη διαγραφή
+                            </div>
+                        {/if}
+                    {/snippet}
+                </MyAlertDialog>
 			</div>
 
 			<div class="flex justify-between items-start mb-2">
@@ -104,6 +121,9 @@
 			{#if ingredient.description}
 				<p class="text-sm text-neutral-600 line-clamp-2 mb-3">{ingredient.description}</p>
 			{/if}
+            <span class="text-xs font-medium">
+                Συνταγές: {ingredient.recipe_ingredients[0]?.count || 0}
+            </span>
 			
 			<div class="flex justify-between items-center text-sm text-neutral-500">
 				<span>Μονάδα: {ingredient.measurement_unit || '-'}</span>

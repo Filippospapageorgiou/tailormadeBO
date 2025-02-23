@@ -9,7 +9,7 @@
 </script>
 
 <Navbar />
-<div class="container mx-auto px-4 mt-36">
+<div class="container mx-auto px-4 mt-24">
     <SettingsTab />
     {@render children()}
 </div>

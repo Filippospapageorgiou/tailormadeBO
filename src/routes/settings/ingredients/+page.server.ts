@@ -1,3 +1,4 @@
+//routes/setting/ingredients/+page.server.ts
 import type { PageServerLoad } from './$types';
 import type { Ingredient } from '$lib/types/database.types';
 import { fail } from '@sveltejs/kit';
@@ -6,11 +7,19 @@ import type { Actions } from './$types';
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
   const { data: Ingredient, error } = await supabase
     .from('ingredients')
-    .select('*')
+    .select(`
+        *,
+        recipe_ingredients!left(count)
+    `)
     .order('id')
     .returns<Ingredient[]>();
 
     const total:number = Ingredient?.length || 0;
+
+  
+    if (Ingredient) {
+      console.log(Ingredient[0]);
+    }
   if (error) {
     console.error('Error fetching beverages:', error);
     return { beverages: [] };
