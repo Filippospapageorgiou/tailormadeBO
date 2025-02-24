@@ -1,8 +1,9 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
     import { AlertDialog, type WithoutChild } from "bits-ui";
-	import { Trash2 } from "lucide-svelte";
-	import { invalidateAll } from "$app/navigation";
+	  import { Trash2 } from "lucide-svelte";
+	  import { invalidateAll } from "$app/navigation";
+    import ProgressBar from "./ProgressBar.svelte";
  
     type Props = AlertDialog.RootProps & {
     	buttonText: string;
@@ -12,9 +13,9 @@
     	contentProps?: WithoutChild<AlertDialog.ContentProps>;
     	onConfirm?: () => void;
     	onCancel?: () => void;
-    	hiddenInputs?: Snippet; // Προσθήκη νέου snippet για τα hidden inputs
-		ingredientId: number;  // Προσθήκη
-    	ingredientName: string;  // Προσθήκη
+    	hiddenInputs?: Snippet; 
+		  ingredientId: number;  
+    	ingredientName: string;
 	};
 
 	let {
@@ -24,12 +25,12 @@
     	contentProps,
     	title,
     	description,
-    	hiddenInputs,  // Προσθήκη στο destructuring
+    	hiddenInputs,
     	onConfirm,
     	onCancel,
     	preventScroll,
-		ingredientId,    // Προσθήκη
-    	ingredientName,  // Προσθήκη
+		  ingredientId,    
+    	ingredientName,
     	...restProps
 	}: Props = $props();
 
@@ -37,6 +38,69 @@
     function wait(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
+
+    let isDeleting = $state(false);
+    let progressValue = $state(0);
+    let showProgress = $state(false);
+
+    async function simulateProgress(){
+      showProgress = true;
+      progressValue = 0;
+
+      // Αρχική πρόοδος γρήγορα
+      for (let i = 0; i <= 60; i += 20) {
+            progressValue = i;
+            await wait(100);
+        }
+        
+        // Μεσαία πρόοδος λίγο πιο αργά
+        for (let i = 60; i <= 85; i += 5) {
+            progressValue = i;
+            await wait(80);
+        }
+        
+        // Τελική πρόοδος πιο αργά
+        for (let i = 85; i < 100; i += 3) {
+            progressValue = i;
+            await wait(60);
+        }
+        
+        // Τελική τιμή
+        progressValue = 100;
+    }
+
+    // Χειρισμός διαγραφής
+    async function handleDelete() {
+        isDeleting = true;
+        
+        // Έναρξη προσομοίωσης προόδου
+        simulateProgress();
+        
+        // Περιμένουμε για να προσομοιώσουμε τη διαδικασία διαγραφής
+        await wait(1200);
+        
+        // Επαναφορά των state μετά την ολοκλήρωση
+        setTimeout(() => {
+            isDeleting = false;
+            progressValue = 0;
+            showProgress = false;
+        }, 500);
+    }
+    
+    function handleOpenChange(isOpen: boolean) {
+        if (!isOpen && onCancel) {
+            onCancel();
+        }
+        
+        if (!isOpen) {
+            setTimeout(() => {
+                isDeleting = false;
+                progressValue = 0;
+                showProgress = false;
+            }, 300);
+        }
+    }
+
 </script>
 
 <AlertDialog.Root bind:open {...restProps} onOpenChange={(isOpen) => {
@@ -65,24 +129,39 @@
             {@render description()}
           </AlertDialog.Description>
         </div>
+
+        {#if showProgress}
+            <div class="mb-4">
+                <ProgressBar 
+                    value={progressValue} 
+                    label="Διαγραφή συστατικού..." 
+                    autoHide={true}
+                />
+            </div>
+        {/if}
+
         {@render children?.()}
         <form 
-			method="POST" 
-			action="?/deleteIngredient"
-			onsubmit={async () => {
-			await wait(1000);
-			open = false;
-			await invalidateAll();}}
-        	>
+            method="POST" 
+            action="?/deleteIngredient"
+            onsubmit={async () => {
+              await handleDelete();
+                await wait(1000);
+                open = false;
+                await invalidateAll();
+            }}
+          >
             <input type="hidden" name="id" value={ingredientId} />
             <div class="flex w-full items-center justify-center gap-2">
               <AlertDialog.Cancel
+                disabled={isDeleting}
                 type="button"
                 class="h-input rounded-input bg-muted shadow-mini hover:bg-dark-10 focus-visible:ring-foreground focus-visible:ring-offset-background focus-visible:outline-hidden inline-flex w-full items-center justify-center text-[15px] font-medium transition-all focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-[0.98]"
               >
                 Cancel
               </AlertDialog.Cancel>
               <AlertDialog.Action
+                disabled={isDeleting}
                 type="submit"
                 class="h-input rounded-input bg-dark text-background shadow-mini hover:bg-dark/95 focus-visible:ring-dark focus-visible:ring-offset-background focus-visible:outline-hidden inline-flex w-full items-center justify-center text-[15px] font-semibold transition-all focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-[0.98]"
               >

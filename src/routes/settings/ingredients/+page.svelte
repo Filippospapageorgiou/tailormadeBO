@@ -2,9 +2,10 @@
     import type { Ingredient } from "$lib/types/database.types";
     import type { PageData } from "./$types";
     import { fade } from 'svelte/transition';
-    import { Search, Plus,Pencil } from 'lucide-svelte';
+    import { Search,Pencil } from 'lucide-svelte';
     import { onMount } from "svelte";
     import MyAlertDialog from "$lib/components/ui/MyAlertDialog.svelte.svelte";
+    import IngredientDialogSave from "$lib/components/ui/IngredientDialogSave.svelte";
     
 	
     
@@ -14,6 +15,7 @@
     
     let searchQuery = $state('');
     let mounted = $state(false);
+    let isDialogOpen = $state(false);
     
 
     onMount(() => {
@@ -50,13 +52,18 @@
             />
         </div>
         
-        <button 
-            class="flex items-center gap-2 px-4 py-2 bg-[#8B6B4A] text-white rounded-lg
-                   hover:bg-[#6F563C] transition-colors duration-300 w-full sm:w-auto"
-        >
-            <Plus size={20} />
-            <span>Νέο Συστατικό</span>
-        </button>
+        
+        <IngredientDialogSave bind:open={isDialogOpen} buttonText="Νέο Συστατικό">
+            {#snippet title()}
+                Προσθήκη Νέου Συστατικού
+            {/snippet}
+            
+            {#snippet description()}
+                Συμπληρώστε τα παρακάτω στοιχεία για να προσθέσετε ένα νέο συστατικό στη βάση δεδομένων.
+            {/snippet}
+            
+
+        </IngredientDialogSave>
     </div>
 
      
@@ -121,10 +128,6 @@
 			{#if ingredient.description}
 				<p class="text-sm text-neutral-600 line-clamp-2 mb-3">{ingredient.description}</p>
 			{/if}
-            <span class="text-xs font-medium">
-                Συνταγές: {ingredient.recipe_ingredients[0]?.count || 0}
-            </span>
-			
 			<div class="flex justify-between items-center text-sm text-neutral-500">
 				<span>Μονάδα: {ingredient.measurement_unit || '-'}</span>
 				<span class="text-xs">

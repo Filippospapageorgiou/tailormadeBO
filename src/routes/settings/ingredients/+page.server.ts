@@ -48,5 +48,59 @@ export const actions:Actions = {
 
     return { success: true };
 
+  },
+
+  addIngredient: async({ request, locals: {supabase} }) => {
+    const formData = await request.formData();
+
+    const name:string = formData.get('name') as string;
+    const description = formData.get('description') as string || null;
+    const category = formData.get('category') as string || null;
+    const measurement_unit = formData.get('measurement_unit') as string
+
+    console.log(name,description,category,measurement_unit)
+    if (!name || !measurement_unit) {
+      return fail(400, { 
+        message: 'Το όνομα και η μονάδα μέτρησης είναι υποχρεωτικά',
+        invalid: true,
+        values: {
+          name,
+          description,
+          category,
+          measurement_unit
+        }
+      });
+    }
+
+    const { data , error } = await supabase
+    .from('ingredients')
+    .insert([
+      {
+        name,
+        description, 
+        category, 
+        measurement_unit 
+      }
+    ])
+    .select();
+
+    if(error){
+      return fail(500, {
+        message: 'Αποτυχία προσθήκης συστατικού',
+        invalid: true,
+        values: {
+          name,
+          description,
+          category,
+          measurement_unit
+        }
+      });
+    }
+
+    return {
+      success: true,
+      message: "Το συστατικό προστέθηκε επιτυχώς",
+      data
+    };
   }
 }
