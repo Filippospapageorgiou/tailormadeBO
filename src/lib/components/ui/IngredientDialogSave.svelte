@@ -6,7 +6,7 @@
     import { invalidateAll } from "$app/navigation"; 
 	import Label from "./Label.svelte";
     import Select from "./Select.svelte";
-    import ProgressBar from "./ProgressBar.svelte";
+    
  
 	type Props = Dialog.RootProps & {
 		buttonText: string;
