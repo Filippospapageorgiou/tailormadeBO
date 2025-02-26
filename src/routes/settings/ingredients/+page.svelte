@@ -5,9 +5,10 @@
     import { Search, Pencil } from 'lucide-svelte';
     import { onMount } from "svelte";
     import MyAlertDialog from "$lib/components/ui/MyAlertDialog.svelte.svelte";
+    import EditIngredientDialog from "$lib/components/ui/EditIngredientDialog.svelte";
     import IngredientDialogSave from "$lib/components/ui/IngredientDialogSave.svelte";
     import GlobalProgressBar from "$lib/components/ui/GlobalProgressBar.svelte";
-    import { progressStore } from "$lib/stores/progressStore";
+    
     
     
     let { data }: { data: PageData } = $props();
@@ -65,72 +66,84 @@
         </IngredientDialogSave>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-        in:fade={{ duration: 500, delay: 300 }}>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" in:fade={{ duration: 500, delay: 300 }}>
         {#each ingredients as ingredient (ingredient.id)}
-            <div 
-                class="group bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300
+            <div
+                class="group bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-300
                     border border-gray-100 hover:border-[#8B6B4A]/20 relative"
                 in:fade={{ duration: 300 }}
             >
-                <!-- Action Buttons - εμφανίζονται στο hover -->
-                <div class="absolute top-13 right-3 flex gap-2">
-                    <button
-                        onclick={() => handleEdit(ingredient.id)}
-                        class="p-1.5 rounded-full bg-white shadow-sm hover:shadow-md
-                            text-[#8B6B4A] hover:text-[#6F563C] transition-all duration-200
-                            border border-transparent hover:border-[#8B6B4A]/20"
-                    >
-                        <Pencil size={16} />
-                    </button>
-                    <MyAlertDialog 
-                        buttonText="Open Dialog" 
-                        preventScroll={true}
-                        ingredientId={ingredient.id}
-                        ingredientName={ingredient.name}
-                    >
-                        {#snippet title()}
-                            Είστε σίγουροι ότι θέλετε να διαγραψέτε αύτο το Συστατικό με όνομα {ingredient.name}
-                        {/snippet}
-                        {#snippet description()}
-                            {#if ingredient.recipe_ingredients[0]?.count > 0}
-                                <div class="text-amber-600 font-medium text-sm">
-                                    <span class="flex items-center gap-2">
-                                        ⚠️ Προσοχή! 
-                                        <span class="font-normal">
-                                            συστατικό χρησιμοποιείται σε 
-                                            <span class="font-semibold">{ingredient.recipe_ingredients[0]?.count}</span> 
-                                            {ingredient.recipe_ingredients[0]?.count === 1 ? 'συνταγή' : 'συνταγές'}
-                                        </span>
-                                    </span>
-                                </div>
-                            {:else}
-                                <div class="text-neutral-600 text-sm">
-                                Μπορείτε να προχωρήσετε με τη διαγραφή
-                                </div>
-                            {/if}
-                        {/snippet}
-                    </MyAlertDialog>
-                </div>
-
+                
                 <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <p class="text-xs text-[#8B6B4A] mb-1">#{ingredient.id}</p>
-                        <h3 class="text-lg font-medium text-neutral-800">{ingredient.name}</h3>
+                    <div class="flex items-center">
+                        <span class="text-xs text-[#8B6B4A] mr-1">#{ingredient.id}</span>
+                        <h3 class="text-base font-medium text-neutral-800 pl-1">{ingredient.name}</h3>
                     </div>
-                    <span class="text-xs font-medium px-2 py-1 bg-[#8B6B4A]/10 text-[#8B6B4A] rounded-full">
-                        {ingredient.category || 'Χωρίς κατηγορία'}
-                    </span>
+                    
+                    <!-- Action Buttons δίπλα στο όνομα -->
+                    <div class="flex gap-1">
+                        <EditIngredientDialog ingredient={ingredient}>
+                            {#snippet title()}
+                                Επεξεργασία Συστατικού
+                            {/snippet}
+                            {#snippet description()}
+                                Τροποποιήστε τις πληροφορίες του συστατικού "{ingredient.name}"
+                            {/snippet}
+                        </EditIngredientDialog>
+                        <MyAlertDialog
+                            buttonText="Open Dialog"
+                            preventScroll={true}
+                            ingredientId={ingredient.id}
+                            ingredientName={ingredient.name}
+                        >
+                            {#snippet title()}
+                                Είστε σίγουροι ότι θέλετε να διαγράψετε αύτο το Συστατικό με όνομα {ingredient.name}
+                            {/snippet}
+                            {#snippet description()}
+                                {#if ingredient.recipe_ingredients[0]?.count > 0}
+                                    <div class="text-amber-600 font-medium text-sm">
+                                        <span class="flex items-center gap-2">
+                                            ⚠️ Προσοχή!
+                                            <span class="font-normal">
+                                                συστατικό χρησιμοποιείται σε
+                                                <span class="font-semibold">{ingredient.recipe_ingredients[0]?.count}</span>
+                                                {ingredient.recipe_ingredients[0]?.count === 1 ? 'συνταγή' : 'συνταγές'}
+                                            </span>
+                                        </span>
+                                    </div>
+                                {:else}
+                                    <div class="text-neutral-600 text-sm">
+                                        Μπορείτε να προχωρήσετε με τη διαγραφή
+                                    </div>
+                                {/if}
+                            {/snippet}
+                        </MyAlertDialog>
+                    </div>
                 </div>
                 
-                {#if ingredient.description}
-                    <p class="text-sm text-neutral-600 line-clamp-2 mb-3">{ingredient.description}</p>
-                {/if}
-                <div class="flex justify-between items-center text-sm text-neutral-500">
-                    <span>Μονάδα: {ingredient.measurement_unit || '-'}</span>
-                    <span class="text-xs">
-                        {new Date(ingredient.updated_at).toLocaleDateString('el-GR')}
-                    </span>
+                <!-- Πληροφορίες κάτω από το όνομα -->
+                <div class="grid grid-cols-1 gap-1">
+                    <!-- Κατηγορία και μονάδα μέτρησης -->
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs px-1.5 py-0.5 bg-[#8B6B4A]/10 text-[#8B6B4A] rounded-full">
+                            {ingredient.category || 'Χωρίς κατηγορία'}
+                        </span>
+                        <span class="text-xs text-neutral-700">
+                            {ingredient.measurement_unit || '-'}
+                        </span>
+                    </div>
+                    
+                    <!-- Περιγραφή (αν υπάρχει) -->
+                    {#if ingredient.description}
+                        <p class="text-xs text-neutral-600 line-clamp-2">{ingredient.description}</p>
+                    {/if}
+                    
+                    <!-- Ημερομηνία στο κάτω μέρος -->
+                    <div class="text-right">
+                        <span class="text-xs text-neutral-400">
+                            {new Date(ingredient.updated_at).toLocaleDateString('el-GR')}
+                        </span>
+                    </div>
                 </div>
             </div>
         {/each}

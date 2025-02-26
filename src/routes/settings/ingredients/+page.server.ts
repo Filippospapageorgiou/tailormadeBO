@@ -50,6 +50,102 @@ export const actions:Actions = {
 
   },
 
+  updateIngredient: async({ request, locals: {supabase} }) => {
+    const formData = await request.formData();
+  
+    const id = formData.get('id') as string;
+    const name:string = formData.get('name') as string;
+    const description = formData.get('description') as string || null;
+    const category = formData.get('category') as string || null;
+    const measurement_unit = formData.get('measurement_unit') as string;
+  
+    console.log('Updating ingredient:', id, name, description, category, measurement_unit);
+  
+    if (!id || !name || !measurement_unit) {
+      return fail(400, { 
+        message: 'Το όνομα και η μονάδα μέτρησης είναι υποχρεωτικά',
+        invalid: true,
+        values: {
+          id,
+          name,
+          description,
+          category,
+          measurement_unit
+        }
+      });
+    }
+  
+    // Έλεγχος αν υπάρχει ήδη συστατικό με το ίδιο όνομα (εκτός από το τρέχον συστατικό)
+    const { data: existingIngredient, error: searchError } = await supabase
+      .from('ingredients')
+      .select('id')
+      .neq('id', id) // Εξαιρούμε το τρέχον συστατικό από τον έλεγχο
+      .ilike('name', name)
+      .maybeSingle();
+  
+    if (searchError) {
+      console.error('Error checking for existing ingredient:', searchError);
+      return fail(500, {
+        message: 'Σφάλμα κατά τον έλεγχο για υπάρχον συστατικό',
+        invalid: true,
+        values: {
+          id,
+          name,
+          description,
+          category,
+          measurement_unit
+        }
+      });
+    }
+  
+    if (existingIngredient) {
+      return fail(400, {
+        message: 'Υπάρχει ήδη συστατικό με αυτό το όνομα',
+        invalid: true,
+        values: {
+          id,
+          name,
+          description,
+          category,
+          measurement_unit
+        }
+      });
+    }
+  
+    const { data, error } = await supabase
+      .from('ingredients')
+      .update({
+        name,
+        description,
+        category,
+        measurement_unit
+      })
+      .eq('id', id)
+      .select();
+  
+    if (error) {
+      console.error('Error updating ingredient:', error);
+      return fail(500, {
+        message: 'Αποτυχία ενημέρωσης συστατικού',
+        invalid: true,
+        values: {
+          id,
+          name,
+          description,
+          category,
+          measurement_unit
+        }
+      });
+    }
+  
+    return {
+      success: true,
+      message: "Το συστατικό ενημερώθηκε επιτυχώς",
+      data
+    };
+  },
+
+  
   addIngredient: async({ request, locals: {supabase} }) => {
     const formData = await request.formData();
 
@@ -62,6 +158,39 @@ export const actions:Actions = {
     if (!name || !measurement_unit) {
       return fail(400, { 
         message: 'Το όνομα και η μονάδα μέτρησης είναι υποχρεωτικά',
+        invalid: true,
+        values: {
+          name,
+          description,
+          category,
+          measurement_unit
+        }
+      });
+    }
+
+    const { data:existingIngredient , error: searchError } = await supabase
+    .from('ingredients')
+    .select('id')
+    .eq('name',name)
+    .maybeSingle();
+
+    if (searchError) {
+      console.error('Error checking for existing ingredient:', searchError);
+      return fail(500, {
+        message: 'Σφάλμα κατά τον έλεγχο για υπάρχον συστατικό',
+        invalid: true,
+        values: {
+          name,
+          description,
+          category,
+          measurement_unit
+        }
+      });
+    }
+
+    if (existingIngredient) {
+      return fail(400, {
+        message: 'Υπάρχει ήδη συστατικό με αυτό το όνομα',
         invalid: true,
         values: {
           name,
