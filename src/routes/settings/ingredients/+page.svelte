@@ -2,11 +2,11 @@
     import type { Ingredient } from "$lib/types/database.types";
     import type { PageData } from "./$types";
     import { fade } from 'svelte/transition';
-    import { Search, Pencil } from 'lucide-svelte';
+    import { Search } from 'lucide-svelte';
     import { onMount } from "svelte";
-    import MyAlertDialog from "$lib/components/ui/MyAlertDialog.svelte.svelte";
-    import EditIngredientDialog from "$lib/components/ui/EditIngredientDialog.svelte";
-    import IngredientDialogSave from "$lib/components/ui/IngredientDialogSave.svelte";
+    import MyAlertDialog from "$lib/components/ui/settings_ingredients/MyAlertDialog.svelte.svelte";
+    import EditIngredientDialog from "$lib/components/ui/settings_ingredients/EditIngredientDialog.svelte";
+    import IngredientDialogSave from "$lib/components/ui/settings_ingredients/IngredientDialogSave.svelte";
     import GlobalProgressBar from "$lib/components/ui/GlobalProgressBar.svelte";
     
     
@@ -24,10 +24,6 @@
             mounted = true;
         }, 0);
     });
-
-    const handleEdit = (id: number) => {
-        console.log('Edit ingredient:', id);
-    };
 </script>
 
 <!-- Προσθήκη του GlobalProgressBar -->

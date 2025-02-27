@@ -58,8 +58,7 @@ export const actions:Actions = {
     const description = formData.get('description') as string || null;
     const category = formData.get('category') as string || null;
     const measurement_unit = formData.get('measurement_unit') as string;
-  
-    console.log('Updating ingredient:', id, name, description, category, measurement_unit);
+
   
     if (!id || !name || !measurement_unit) {
       return fail(400, { 

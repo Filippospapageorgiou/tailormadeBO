@@ -3,7 +3,7 @@
     import type { Snippet } from 'svelte';
     import type { LayoutData } from './$types';
     import Navbar from '$lib/components/Navbar.svelte';
-	import SettingsTab from '$lib/components/settings/SettingsTab.svelte';
+	import SettingsTab from '$lib/components/ui/settings/SettingsTab.svelte';
     
     let { data, children }: { data: LayoutData, children: Snippet } = $props();
 </script>

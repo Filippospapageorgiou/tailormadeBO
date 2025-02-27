@@ -3,31 +3,28 @@
 	import { Dialog, type WithoutChild } from "bits-ui";
 	import { fade, fly } from 'svelte/transition';
 	import { Plus } from "lucide-svelte";
-    import { invalidateAll } from "$app/navigation"; 
-	import Label from "./Label.svelte";
-    import Select from "./Select.svelte";
-    
+    import { invalidateAll } from "$app/navigation";
+	import Label from "$lib/components/ui/Label.svelte";
  
 	type Props = Dialog.RootProps & {
 		buttonText: string;
-		title: Snippet;
-		description: Snippet;
 		contentProps?: WithoutChild<Dialog.ContentProps>;
 	};
  
 	let {
 		open = $bindable(false),
-		children,
 		buttonText,
 		contentProps,
-		title,
-		description,
 		...restProps
 	}: Props = $props();
 	
 	function handleOpenChange(isOpen: boolean) {
 		if (!isOpen) {
 			setTimeout(() => {
+                // Reset values if dialog is closed
+                name = "";
+                description = "";
+                imageUrl = "";
 			}, 300);
 		}
 	}
@@ -36,27 +33,24 @@
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+    let name = $state("");
+    let description = $state("");
+    let imageUrl = $state("");
+    let isLoading = $state(false);
     
-     // Κατηγορίες συστατικών
-     const categoryItems = [
-        { value: "Γαλακτοκομικά", label: "Γαλακτοκομικά" },
-        { value: "Κάφες", label: "Κάφες" },
-        { value: "Νέρο", label: "Νέρο" },
-        { value: "Τσαι", label: "Τσάι" },
-        { value: "Matcha", label: "Matcha" },
-    ];
-    
-    // Μονάδες μέτρησης
-    const unitItems = [
-        { value: "γραμμάρια (g)", label: "γραμμάρια (g)" },
-        { value: "κιλά (kg)", label: "κιλά (kg)" },
-        { value: "μιλιλίτρα (ml)", label: "μιλιλίτρα (ml)" },
-        { value: "λίτρα (l)", label: "λίτρα (l)" },
-        { value: "κουταλιά της σούπας (tbsp)", label: "κουταλιά της σούπας (tbsp)" },
-    ];
-
-    let category = $state("");
-    let unit = $state("");
+    async function handleSubmit() {
+        isLoading = true;
+        
+        try {
+            await wait(800); // Simulation of process time
+            await invalidateAll();
+            open = false;
+        } catch (error) {
+            console.error("Σφάλμα κατά την προσθήκη ροφήματος:", error);
+        } finally {
+            isLoading = false;
+        }
+    }
 </script>
  
 <Dialog.Root bind:open onOpenChange={handleOpenChange} {...restProps}>
@@ -93,62 +87,29 @@
 					>
 						<div class="flex flex-col gap-2">
 							<Dialog.Title class="text-xl font-semibold text-neutral-900">
-								{@render title()}
+								Προσθήκη Νέου Ροφήματος
 							</Dialog.Title>
 							<Dialog.Description class="text-sm text-neutral-500">
-								{@render description()}
+								Συμπληρώστε τα παρακάτω στοιχεία για να προσθέσετε ένα νέο ρόφημα στη βάση δεδομένων.
 							</Dialog.Description>
 						</div>
-						
-						
-						{@render children?.()}
                         
-                        <form method="post" action="?/addIngredient" class="space-y-4"
-                            onsubmit={async () => {
-                                await wait(1000);
-                                open = false;
-                                await invalidateAll();
-                            }}
+                        <form method="post" action="?/addBeverage" class="space-y-4"
+                            onsubmit={handleSubmit}
                         >
                             <div class="space-y-2">
                                 <Label for="name" required>
-                                    Όνομα Συστατικού
+                                    Όνομα Ροφήματος
                                 </Label>
                                 <input 
                                     type="text" 
                                     id="name" 
                                     name="name" 
-                                    required                                       
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B6B4A] focus:border-[#8B6B4A]"
-                                    placeholder="Αλέσμενος κάφες"
-                                />
-                            </div>
-                            
-                            <div class="space-y-2">
-                                <Label for="category" required>
-                                    Κατηγορία Συστατικού
-                                </Label>
-                                <Select 
-                                    type="single"
-                                    items={categoryItems} 
-                                    bind:value={category}
-                                    placeholder="Επιλέξτε κατηγορία (προαιρετικό)"
-                                />
-                                <input type="hidden" name="category" value={category} required/>
-                            </div>
-                            
-                            <div class="space-y-2">
-                                <Label for="measurement_unit" required>
-                                    Μονάδα Μέτρησης
-                                </Label>
-                                <Select 
-                                    type="single"
-                                    items={unitItems} 
-                                    bind:value={unit}
-                                    placeholder="Επιλέξτε μονάδα μέτρησης"
                                     required
+                                    bind:value={name}
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B6B4A] focus:border-[#8B6B4A]"
+                                    placeholder="Cappuccino"
                                 />
-                                <input type="hidden" name="measurement_unit" value={unit} required />
                             </div>
                             
                             <div class="space-y-2">
@@ -159,9 +120,24 @@
                                     id="description"
                                     name="description"
                                     rows="3"
+                                    bind:value={description}
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B6B4A] focus:border-[#8B6B4A]"
-                                    placeholder="Προαιρετική περιγραφή του συστατικού..."
+                                    placeholder="Προαιρετική περιγραφή του ροφήματος..."
                                 ></textarea>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <Label for="image_url">
+                                    URL Εικόνας
+                                </Label>
+                                <input 
+                                    type="text" 
+                                    id="image_url" 
+                                    name="image_url"
+                                    bind:value={imageUrl}
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B6B4A] focus:border-[#8B6B4A]"
+                                    placeholder="https://example.com/image.jpg"
+                                />
                             </div>
                             
                             <div class="flex justify-end gap-3 pt-4">
@@ -169,13 +145,21 @@
                                     type="button" 
                                     class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#8B6B4A] focus:ring-offset-2"
                                     onclick={() => open = false}
+                                    disabled={isLoading}
                                 >
                                     Ακύρωση
                                 </button>
                                 <button 
                                     type="submit" 
-                                    class="px-4 py-2 text-sm font-medium text-white bg-[#8B6B4A] border border-transparent rounded-md shadow-sm hover:bg-[#6F563C] focus:outline-none focus:ring-2 focus:ring-[#8B6B4A] focus:ring-offset-2"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-[#8B6B4A] border border-transparent rounded-md shadow-sm hover:bg-[#6F563C] focus:outline-none focus:ring-2 focus:ring-[#8B6B4A] focus:ring-offset-2 inline-flex items-center justify-center"
+                                    disabled={isLoading}
                                 >
+                                    {#if isLoading}
+                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    {/if}
                                     Αποθήκευση
                                 </button>
                             </div>

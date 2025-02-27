@@ -1,36 +1,47 @@
 <script lang="ts">
 	import type { Snippet } from "svelte";
+	import type { Beverage } from "$lib/types/database.types";
 	import { Dialog, type WithoutChild } from "bits-ui";
 	import { fade, fly } from 'svelte/transition';
 	import { Pencil } from "lucide-svelte";
-    import { invalidateAll } from "$app/navigation"; 
-	import Label from "./Label.svelte";
-    import Select from "./Select.svelte";
-    import type { Ingredient } from '$lib/types/database.types';
+    import { invalidateAll } from "$app/navigation";
+	import Label from "$lib/components/ui/Label.svelte";
  
 	type Props = Dialog.RootProps & {
-		buttonText?: string;
-		title: Snippet;
-		description: Snippet;
+		beverage: Beverage;
+		title?: Snippet;
+		description?: Snippet;
 		contentProps?: WithoutChild<Dialog.ContentProps>;
-        ingredient: Ingredient;
 	};
  
 	let {
 		open = $bindable(false),
-		children,
-		buttonText = "Επεξεργασία",
-		contentProps,
+		beverage,
 		title,
 		description,
-        ingredient,
+		contentProps,
 		...restProps
 	}: Props = $props();
+	
+	// Τοπικές μεταβλητές για τα πεδία
+    let name = $state(beverage.name || "");
+    let beverageDescription = $state(beverage.description || "");
+    let imageUrl = $state(beverage.image_url || "");
+    let isLoading = $state(false);
+    
+    // Ενημέρωση των μεταβλητών όταν αλλάζει το beverage
+    $effect(() => {
+        if (beverage) {
+            name = beverage.name || "";
+            beverageDescription = beverage.description || "";
+            imageUrl = beverage.image_url || "";
+        }
+    });
 	
 	function handleOpenChange(isOpen: boolean) {
 		if (!isOpen) {
 			setTimeout(() => {
-                // Reset values if dialog is closed
+                // Reset values if needed
 			}, 300);
 		}
 	}
@@ -38,40 +49,20 @@
     function wait(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
-
-    // Κατηγορίες συστατικών
-    const categoryItems = [
-        { value: "Γαλακτοκομικά", label: "Γαλακτοκομικά" },
-        { value: "Κάφες", label: "Κάφες" },
-        { value: "Νέρο", label: "Νέρο" },
-        { value: "Τσαι", label: "Τσάι" },
-        { value: "Matcha", label: "Matcha" },
-    ];
     
-    // Μονάδες μέτρησης
-    const unitItems = [
-        { value: "γραμμάρια (g)", label: "γραμμάρια (g)" },
-        { value: "κιλά (kg)", label: "κιλά (kg)" },
-        { value: "μιλιλίτρα (ml)", label: "μιλιλίτρα (ml)" },
-        { value: "λίτρα (l)", label: "λίτρα (l)" },
-        { value: "κουταλιά της σούπας (tbsp)", label: "κουταλιά της σούπας (tbsp)" },
-    ];
-
-    // Initialize values with ingredient data
-    let name = $state(ingredient?.name || "");
-    let descriptionIngred = $state(ingredient?.description || "");
-    let category = $state(ingredient?.category || "");
-    let unit = $state(ingredient?.measurement_unit || "");
-
-    // Function to update values when ingredient changes
-    $effect(() => {
-        if (ingredient) {
-            name = ingredient.name || "";
-            descriptionIngred = ingredient.description || "";
-            category = ingredient.category || "";
-            unit = ingredient.measurement_unit || "";
+    async function handleSubmit() {
+        isLoading = true;
+        
+        try {
+            await wait(800); // Προσομοίωση καθυστέρησης επεξεργασίας
+            await invalidateAll();
+            open = false;
+        } catch (error) {
+            console.error("Σφάλμα κατά την ενημέρωση ροφήματος:", error);
+        } finally {
+            isLoading = false;
         }
-    });
+    }
 </script>
  
 <Dialog.Root bind:open onOpenChange={handleOpenChange} {...restProps}>
@@ -108,66 +99,40 @@
 					>
 						<div class="flex flex-col gap-2">
 							<Dialog.Title class="text-xl font-semibold text-neutral-900">
-								{@render title()}
+								{#if title}
+                                    {@render title()}
+                                {:else}
+                                    Επεξεργασία Ροφήματος
+                                {/if}
 							</Dialog.Title>
 							<Dialog.Description class="text-sm text-neutral-500">
-								{@render description()}
+								{#if description}
+                                    {@render description()}
+                                {:else}
+                                    Τροποποιήστε τις πληροφορίες του ροφήματος.
+                                {/if}
 							</Dialog.Description>
 						</div>
-						
-						
-						{@render children?.()}
                         
-                        <form method="post" action="?/updateIngredient" class="space-y-4"
-                            onsubmit={async () => {
-                                await wait(1000);
-                                open = false;
-                                await invalidateAll();
-                            }}
+                        <form method="post" action="?/updateBeverage" class="space-y-4"
+                            onsubmit={handleSubmit}
                         >
-                            <!-- Κρυφό πεδίο για το ID του συστατικού -->
-                            <input type="hidden" name="id" value={ingredient?.id} />
-
+                            <!-- Κρυφό πεδίο για το ID του ροφήματος -->
+                            <input type="hidden" name="id" value={beverage.id} />
+                            
                             <div class="space-y-2">
                                 <Label for="name" required>
-                                    Όνομα Συστατικού
+                                    Όνομα Ροφήματος
                                 </Label>
                                 <input 
                                     type="text" 
                                     id="name" 
                                     name="name" 
                                     required
-                                    value={name}                                      
+                                    bind:value={name}
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B6B4A] focus:border-[#8B6B4A]"
-                                    placeholder="Αλέσμενος κάφες"
+                                    placeholder="Cappuccino"
                                 />
-                            </div>
-                            
-                            <div class="space-y-2">
-                                <Label for="category" required>
-                                    Κατηγορία Συστατικού
-                                </Label>
-                                <Select 
-                                    type="single"
-                                    items={categoryItems} 
-                                    bind:value={category}
-                                    placeholder="Επιλέξτε κατηγορία (προαιρετικό)"
-                                />
-                                <input type="hidden" name="category" value={category} />
-                            </div>
-                            
-                            <div class="space-y-2">
-                                <Label for="measurement_unit" required>
-                                    Μονάδα Μέτρησης
-                                </Label>
-                                <Select 
-                                    type="single"
-                                    items={unitItems} 
-                                    bind:value={unit}
-                                    placeholder="Επιλέξτε μονάδα μέτρησης"
-                                    required
-                                />
-                                <input type="hidden" name="measurement_unit" value={unit} required />
                             </div>
                             
                             <div class="space-y-2">
@@ -178,9 +143,24 @@
                                     id="description"
                                     name="description"
                                     rows="3"
+                                    bind:value={beverageDescription}
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B6B4A] focus:border-[#8B6B4A]"
-                                    placeholder="Προαιρετική περιγραφή του συστατικού..."
-                                >{descriptionIngred}</textarea>
+                                    placeholder="Προαιρετική περιγραφή του ροφήματος..."
+                                ></textarea>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <Label for="image_url">
+                                    URL Εικόνας
+                                </Label>
+                                <input 
+                                    type="text" 
+                                    id="image_url" 
+                                    name="image_url"
+                                    bind:value={imageUrl}
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B6B4A] focus:border-[#8B6B4A]"
+                                    placeholder="https://example.com/image.jpg"
+                                />
                             </div>
                             
                             <div class="flex justify-end gap-3 pt-4">
@@ -188,13 +168,21 @@
                                     type="button" 
                                     class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#8B6B4A] focus:ring-offset-2"
                                     onclick={() => open = false}
+                                    disabled={isLoading}
                                 >
                                     Ακύρωση
                                 </button>
                                 <button 
                                     type="submit" 
-                                    class="px-4 py-2 text-sm font-medium text-white bg-[#8B6B4A] border border-transparent rounded-md shadow-sm hover:bg-[#6F563C] focus:outline-none focus:ring-2 focus:ring-[#8B6B4A] focus:ring-offset-2"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-[#8B6B4A] border border-transparent rounded-md shadow-sm hover:bg-[#6F563C] focus:outline-none focus:ring-2 focus:ring-[#8B6B4A] focus:ring-offset-2 inline-flex items-center justify-center"
+                                    disabled={isLoading}
                                 >
+                                    {#if isLoading}
+                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    {/if}
                                     Ενημέρωση
                                 </button>
                             </div>
