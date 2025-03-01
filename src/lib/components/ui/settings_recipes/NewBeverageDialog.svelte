@@ -36,6 +36,7 @@
     let name = $state("");
     let description = $state("");
     let imageUrl = $state("");
+    let execution = $state("");
     let isLoading = $state(false);
     
     async function handleSubmit() {
@@ -123,6 +124,20 @@
                                     bind:value={description}
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B6B4A] focus:border-[#8B6B4A]"
                                     placeholder="Προαιρετική περιγραφή του ροφήματος..."
+                                ></textarea>
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label for="execution">
+                                    Υλοποιήση συνταγής
+                                </Label>
+                                <textarea
+                                    id="execution"
+                                    name="execution"
+                                    rows="3"
+                                    bind:value={execution}
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B6B4A] focus:border-[#8B6B4A]"
+                                    placeholder="Προαιρετική υλοποιήση του ροφήματος..."
                                 ></textarea>
                             </div>
                             

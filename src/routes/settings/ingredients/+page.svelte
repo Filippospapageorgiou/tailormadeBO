@@ -18,6 +18,15 @@
     let searchQuery = $state('');
     let mounted = $state(false);
     let isDialogOpen = $state(false);
+
+    let filteredIngredeints = $derived(
+        searchQuery 
+            ? ingredients.filter(ingredient => 
+                ingredient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (ingredient.description && ingredient.description.toLowerCase().includes(searchQuery.toLowerCase()))
+              )
+            : ingredients
+    );
     
     onMount(() => {
         setTimeout(() => {
@@ -63,7 +72,7 @@
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" in:fade={{ duration: 500, delay: 300 }}>
-        {#each ingredients as ingredient (ingredient.id)}
+        {#each filteredIngredeints as ingredient (ingredient.id)}
             <div
                 class="group bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-300
                     border border-gray-100 hover:border-[#8B6B4A]/20 relative"

@@ -37,22 +37,22 @@
     }
 
     
-     // Κατηγορίες συστατικών
+     
      const categoryItems = [
         { value: "Γαλακτοκομικά", label: "Γαλακτοκομικά" },
         { value: "Κάφες", label: "Κάφες" },
         { value: "Νέρο", label: "Νέρο" },
         { value: "Τσαι", label: "Τσάι" },
         { value: "Matcha", label: "Matcha" },
+        { value: 'Συσκευάσια', label: "Συσκευασία" }
     ];
     
-    // Μονάδες μέτρησης
+    
     const unitItems = [
         { value: "γραμμάρια (g)", label: "γραμμάρια (g)" },
         { value: "κιλά (kg)", label: "κιλά (kg)" },
         { value: "μιλιλίτρα (ml)", label: "μιλιλίτρα (ml)" },
-        { value: "λίτρα (l)", label: "λίτρα (l)" },
-        { value: "κουταλιά της σούπας (tbsp)", label: "κουταλιά της σούπας (tbsp)" },
+        { value: "τεμάχια (t)" , label: "τεμάχια (t)"},
     ];
 
     let category = $state("");

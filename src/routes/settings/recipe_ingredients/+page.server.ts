@@ -42,6 +42,7 @@ export const actions: Actions = {
     const name = formData.get('name') as string;
     const description = formData.get('description') as string || null;
     const image_url = formData.get('image_url') as string || null;
+    const execution = formData.get('execution') as string || null;
 
     if (!name) {
       return fail(400, {
@@ -77,7 +78,7 @@ export const actions: Actions = {
 
     const { data, error } = await supabase
       .from('beverages')
-      .insert([{ name, description, image_url }])
+      .insert([{ name, description, image_url, execution }])
       .select();
 
     if (error) {
@@ -102,6 +103,7 @@ export const actions: Actions = {
     const name = formData.get('name') as string;
     const description = formData.get('description') as string || null;
     const image_url = formData.get('image_url') as string || null;
+    const execution = formData.get('execution') as string || null;
 
     if (!id || !name) {
       return fail(400, {
@@ -124,7 +126,7 @@ export const actions: Actions = {
       return fail(500, {
         message: 'Σφάλμα κατά τον έλεγχο για υπάρχον ρόφημα',
         invalid: true,
-        values: { id, name, description, image_url }
+        values: { id, name, description, image_url ,execution }
       });
     }
 
@@ -138,7 +140,7 @@ export const actions: Actions = {
 
     const { data, error } = await supabase
       .from('beverages')
-      .update({ name, description, image_url })
+      .update({ name, description, image_url , execution })
       .eq('id', id)
       .select();
 
@@ -207,7 +209,7 @@ export const actions: Actions = {
       });
     }
 
-    // Έλεγχος αν υπάρχει ήδη το συγκεκριμένο συστατικό στη συνταγή
+    
     const { data: existingIngredient, error: searchError } = await supabase
       .from('recipe_ingredients')
       .select('id')

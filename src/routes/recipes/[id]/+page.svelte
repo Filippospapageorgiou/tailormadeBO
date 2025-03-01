@@ -80,6 +80,37 @@
                 </div>
             </div>
 
+            <div class="mt-12 max-w-4xl mx-auto">
+                <h2 class="text-2xl font-mono tracking-wider text-neutral-800 mb-6">
+                    ΕΚΤΕΛΕΣΗ
+                </h2>
+                
+                {#if beverage.execution}
+                    <div >
+                        {#if beverage.execution.includes('- ')}
+                            <ol class="list-none space-y-4">
+                                {#each beverage.execution.split('- ') as step, i}
+                                    {#if step.trim()}
+                                        <li class="flex items-start">
+                                            <div class="flex-shrink-0 bg-[#8B6B4A] text-white rounded-full w-7 h-7 flex items-center justify-center mr-3 mt-0.5">
+                                                <span class="text-sm font-semibold">{i}</span>
+                                            </div>
+                                            <div class="text-neutral-700 leading-relaxed">
+                                                {step.trim()}
+                                            </div>
+                                        </li>
+                                    {/if}
+                                {/each}
+                            </ol>
+                        {:else}
+                            <p class="text-neutral-700 leading-relaxed">{beverage.execution}</p>
+                        {/if}
+                    </div>
+                {:else}
+                    <p class="text-neutral-600">Δεν υπάρχουν διαθέσιμες οδηγίες εκτέλεσης.</p>
+                {/if}
+            </div>
+
             <!-- Back Button -->
             <div class="flex justify-center mt-12">
                 <button 
