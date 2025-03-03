@@ -172,9 +172,9 @@
                                 </Label>
                                 <input 
                                     type="text"
-                                    disabled
                                     id="image_url" 
                                     name="image_url"
+                                    readonly
                                     bind:value={imageUrl}
                                     class="w-full px-3 py-2 shadow-sm focus:outline-none focus:ring-[#8B6B4A] focus:border-[#8B6B4A]"
                                     placeholder="https://example.com/image.jpg"
