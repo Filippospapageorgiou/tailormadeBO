@@ -7,6 +7,7 @@
     import { invalidateAll } from "$app/navigation";
 	import Label from "$lib/components/ui/Label.svelte";
     import Select from "$lib/components/ui/Select.svelte";
+	import { enhance } from "$app/forms";
  
 	type Props = Dialog.RootProps & {
 		mode: 'add' | 'edit';
@@ -52,7 +53,6 @@
 	function handleOpenChange(isOpen: boolean) {
 		if (!isOpen) {
 			setTimeout(() => {
-                // Reset values if needed for add mode
                 if (mode === 'add') {
                     selectedIngredientId = "";
                     quantity = "";
@@ -143,12 +143,11 @@
                             action={mode === 'add' ? '?/addRecipeIngredient' : '?/updateRecipeIngredient'} 
                             class="space-y-4"
                             onsubmit={handleSubmit}
+                            use:enhance
                         >
                             {#if mode === 'edit'}
-                                <!-- Κρυφό πεδίο για το ID του συστατικού συνταγής -->
                                 <input type="hidden" name="id" value={recipeIngredient?.id} />
                             {:else}
-                                <!-- Κρυφό πεδίο για το beverage_id -->
                                 <input type="hidden" name="beverage_id" value={beverageId} />
                             {/if}
                             

@@ -3,6 +3,8 @@ import type { Actions } from './$types';
 import type { SignUpFormData, LoginFormData, User } from '$lib/types/database.types';
 import { fail } from '@sveltejs/kit';
 
+const DEFAULT_AVATAR_URL:string = 'https://uhrpdmoknmrbosqenotk.supabase.co/storage/v1/object/public/avatars_url//default.png';
+
 export const actions: Actions = {
   signup: async ({ request, locals: { supabase } }) => {
     const formData = await request.formData();
@@ -26,6 +28,7 @@ export const actions: Actions = {
       const newUser: Omit<User, 'created_at' | 'updated_at'> = {
         id: authData.user.id,
         email: authData.user.email!,
+        image_url: DEFAULT_AVATAR_URL,
         username: data.username || data.email.split('@')[0],
         role: 'employee'
       };
@@ -71,6 +74,7 @@ export const actions: Actions = {
         const newUser: Omit<User, 'created_at' | 'updated_at'> = {
           id: user.id,
           email: user.email!,
+          image_url: DEFAULT_AVATAR_URL,
           username: user.email!.split('@')[0],
           role: 'employee'
         };
