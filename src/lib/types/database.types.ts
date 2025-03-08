@@ -11,7 +11,7 @@ export interface User {
   updated_at: string;
 }
 
-// Τύπος για τα δεδομένα που επιστρέφει το Auth
+
 export interface AuthUser {
   id: string;
   email: string;
@@ -19,7 +19,7 @@ export interface AuthUser {
   app_metadata: Record<string, any>;
 }
 
-// Τύπος για τη session
+
 export interface Session {
   user: AuthUser | null;
   expires_at?: number;

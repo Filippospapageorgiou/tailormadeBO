@@ -18,7 +18,7 @@
         { title: 'ΦΙΛΟΣΟΦΙΑ', path: '/philosophy' },
         { title: 'ΣΥΝΤΑΓΕΣ', path: '/recipes' },
         { title: 'ΕΞΟΠΛΙΣΜΟΣ', path: '/equipment' },
-        { title: 'ΕΠΙΚΟΙΝΩΝΙΑ', path: '/contact' }
+        { title: 'BLOG', path: '/blog' }
     ]);
     
     $effect(() => {

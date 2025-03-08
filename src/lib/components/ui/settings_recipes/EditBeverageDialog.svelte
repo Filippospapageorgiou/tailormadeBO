@@ -25,14 +25,13 @@
 		...restProps
 	}: Props = $props();
 	
-	// Τοπικές μεταβλητές για τα πεδία
+	
     let name = $state(beverage.name || "");
     let beverageDescription = $state(beverage.description || "");
     let beverageExecution = $state(beverage.execution || "");
     let imageUrl = $state(beverage.image_url || "");
     let isLoading = $state(false);
-    
-    // Ενημέρωση των μεταβλητών όταν αλλάζει το beverage
+   
     $effect(() => {
         if (beverage) {
             name = beverage.name || "";
@@ -44,7 +43,6 @@
 	function handleOpenChange(isOpen: boolean) {
 		if (!isOpen) {
 			setTimeout(() => {
-                // Reset values if needed
 			}, 300);
 		}
 	}
@@ -57,7 +55,7 @@
         isLoading = true;
         
         try {
-            await wait(800); // Προσομοίωση καθυστέρησης επεξεργασίας
+            await wait(800); 
             await invalidateAll();
             open = false;
         } catch (error) {
@@ -120,7 +118,6 @@
                         <form method="post" action="?/updateBeverage" class="space-y-4"
                             onsubmit={handleSubmit}
                         >
-                            <!-- Κρυφό πεδίο για το ID του ροφήματος -->
                             <input type="hidden" name="id" value={beverage.id} />
                             
                             <div class="space-y-2">

@@ -3,6 +3,8 @@ import type { Beverage, Ingredient, RecipeIngredient } from '$lib/types/database
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
+const defaultInageUrl:string = "";
+
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
   // Φέρνουμε όλα τα ροφήματα
   const { data: beverages, error: beveragesError } = await supabase
@@ -16,7 +18,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
     return { beverages: [], ingredients: [], totalBeverages: 0 };
   }
 
-  // Φέρνουμε όλα τα συστατικά για το dropdown
+  
   const { data: ingredients, error: ingredientsError } = await supabase
     .from('ingredients')
     .select('*')
@@ -41,7 +43,7 @@ export const actions: Actions = {
     const formData = await request.formData();
     const name = formData.get('name') as string;
     const description = formData.get('description') as string || null;
-    const image_url = formData.get('image_url') as string || null;
+    const image_url = defaultInageUrl;
     const execution = formData.get('execution') as string || null;
 
     if (!name) {

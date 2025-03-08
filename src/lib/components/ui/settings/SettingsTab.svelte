@@ -1,10 +1,12 @@
 <!-- lib/components/SettingsNavigation.svelte -->
 <script lang="ts">
     import { page } from '$app/state';
+	
     
     const navigationItems = [
         { path: '/settings/ingredients', label: 'ΣΥΣΤΑΤΙΚΑ' },
-        { path: '/settings/recipe_ingredients', label: 'ΣΥΝΤΑΓΕΣ' }
+        { path: '/settings/recipe_ingredients', label: 'ΣΥΝΤΑΓΕΣ' },
+        { path: '/settings/blog',   label: 'BLOG'}
     ];
 
     let currentPath = $state('');
