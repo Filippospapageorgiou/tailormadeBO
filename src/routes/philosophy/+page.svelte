@@ -140,8 +140,8 @@
                 <!-- Signature -->
                 <div class="mt-8 text-right"
                      in:fade={{ duration: 800, delay: 600 }}>
-                    <p class="text-sm text-neutral-600">Founder & Creative Director</p>
-                    <p class="text-sm font-medium text-neutral-700">Αλέξανδρος Παπαγεωργίου</p>
+                     <p class="text-sm text-neutral-600">Built with passion by our dedicated team</p>
+                     <p class="text-sm font-medium text-neutral-700">ⓒ 2025 TAILORMADE TEAM</p>
                 </div>
             </div>
         </div>

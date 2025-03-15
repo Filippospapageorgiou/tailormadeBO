@@ -2,7 +2,7 @@
 export type UserRole = 'employee' | 'admin';
 
 export interface User {
-  id: string;  // UUID from Supabase Auth
+  id: string;
   username: string;
   email: string;
   role: UserRole;
@@ -17,6 +17,18 @@ export interface AuthUser {
   email: string;
   user_metadata: Record<string, any>;
   app_metadata: Record<string, any>;
+}
+
+export interface BlogPost { 
+  id: number;
+  user_id: string;
+  title: string;
+  description: string;
+  image_urls: string[];
+  tags: string[];
+  active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 
@@ -86,4 +98,60 @@ export interface SettingsPageData {
   totalPages: number;
   categories: string[];
   units: string[];
+}
+
+export interface Blog {
+  id: number;
+  title: string;
+  description : string | null;
+  content: string
+  images: any;
+  tags: string[];
+  author_id: string;
+  published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BlogRead {
+  id: number;
+  user_id: string;
+  blog_id: string;
+  read_at: string;
+}
+
+export interface CreateBlogData {
+  title: string;
+  description?: string;
+  content: string;
+  images?: Record<string, any>;
+  tags?: string[];
+  author_id: string;
+  published?: boolean;
+}
+
+export interface UpdateBlogData {
+  title?: string;
+  description?: string | null;
+  content?: string;
+  images?: Record<string, any>; 
+  tags?: string[];
+  published?: boolean;
+}
+
+
+export interface BlogPageData {
+  blogs: Blog[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  tags?: string[]; 
+}
+
+
+export interface BlogWithAuthor extends Blog {
+  author: {
+    username: string;
+    image_url: string | null;
+  }
 }

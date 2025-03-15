@@ -23,15 +23,12 @@
 
 <Navbar />
 {#if mounted}
-<div class="min-h-screen bg-white" transition:fade={{ duration: 800, delay: 200 }}>
+<div class="min-h-screen bg-white" transition:fade={{ duration: 400, delay: 100 }}>
     <main class="container mx-auto px-4 md:px-6 pt-32 pb-20">
-        <!-- Title & Counter -->
         <div class="mb-12 flex flex-col items-start gap-2">
             <h1 class="text-4xl font-mono tracking-wider text-neutral-800">BEVERAGES</h1>
             <p class="text-sm text-[#8B6B4A]">Available Products: {beverages.length}</p>
         </div>
-
-        <!-- Grid -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {#each beverages as beverage (beverage.id)}
                 <div 
@@ -43,7 +40,7 @@
                 >
                     <div class="aspect-square w-full overflow-hidden">
                         <img
-                            src={beverage.image_url || '/placeholder-beverage.jpg'}
+                            src={beverage.image_url}
                             alt={beverage.name}
                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />

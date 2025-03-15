@@ -25,7 +25,7 @@
 <Navbar />
 
 {#if mounted && beverage}
-<div class="min-h-screen bg-white" transition:fade={{ duration: 800, delay: 200 }}>
+<div class="min-h-screen bg-white" transition:fade={{ duration: 400, delay: 100 }}>
     <main class="container mx-auto px-4 md:px-6 pt-32 pb-20">
         <div class="max-w-4xl mx-auto">
             <!-- Header με ID και Όνομα -->
