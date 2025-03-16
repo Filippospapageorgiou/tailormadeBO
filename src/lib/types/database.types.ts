@@ -122,11 +122,11 @@ export interface BlogRead {
 
 export interface CreateBlogData {
   title: string;
-  description?: string;
+  description?: string | null;
   content: string;
   images?: Record<string, any>;
   tags?: string[];
-  author_id: string;
+  author_id: string | null;
   published?: boolean;
 }
 
