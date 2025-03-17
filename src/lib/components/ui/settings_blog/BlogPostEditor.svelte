@@ -1,3 +1,4 @@
+<!-- Ενημέρωση του BlogPostEditor.svelte -->
 <script lang="ts">
     import type { Blog } from "$lib/types/database.types";
     import { fade, fly } from 'svelte/transition';
@@ -27,6 +28,88 @@
     let published = $state(blog?.published || false);
     let isSubmitting = $state(false);
     
+    // Προσθήκη μεταβλητών για το ανέβασμα εικόνων
+    let uploadedImages = $state<File[]>([]);
+    let uploadedImagePreviews = $state<string[]>([]);
+    let existingImages = $state<string[]>(blog?.images || []);
+    let imageUploading = $state(false);
+    let dragActive = $state(false);
+    
+    // Συνάρτηση για προσθήκη εικόνων
+    function handleImageUpload(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (!input.files?.length) return;
+        
+        processFiles(Array.from(input.files));
+        input.value = ''; // Καθαρισμός του input για μελλοντικά uploads
+    }
+    
+    // Συνάρτηση για drag & drop
+    function handleDragEnter(e: DragEvent) {
+        e.preventDefault();
+        e.stopPropagation();
+        dragActive = true;
+    }
+    
+    function handleDragLeave(e: DragEvent) {
+        e.preventDefault();
+        e.stopPropagation();
+        dragActive = false;
+    }
+    
+    function handleDragOver(e: DragEvent) {
+        e.preventDefault();
+        e.stopPropagation();
+        dragActive = true;
+    }
+    
+    function handleDrop(e: DragEvent) {
+        e.preventDefault();
+        e.stopPropagation();
+        dragActive = false;
+        
+        if (e.dataTransfer?.files?.length) {
+            processFiles(Array.from(e.dataTransfer.files));
+        }
+    }
+    
+    // Επεξεργασία των επιλεγμένων αρχείων
+    function processFiles(files: File[]) {
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+        
+        // Έλεγχος μεγέθους (έως 5MB ανά αρχείο)
+        const validSizeFiles = imageFiles.filter(file => file.size <= 5 * 1024 * 1024);
+        
+        if (validSizeFiles.length !== imageFiles.length) {
+            alert('Κάποιες εικόνες υπερβαίνουν το μέγιστο μέγεθος των 5MB και παραλείφθηκαν.');
+        }
+        
+        // Δημιουργία previews για τα αρχεία
+        validSizeFiles.forEach(file => {
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const result = e.target?.result as string;
+                if (result) {
+                    uploadedImagePreviews = [...uploadedImagePreviews, result];
+                    uploadedImages = [...uploadedImages, file];
+                }
+            };
+            
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    // Αφαίρεση εικόνας από τη λίστα επιλεγμένων
+    function removeUploadedImage(index: number) {
+        uploadedImages = uploadedImages.filter((_, i) => i !== index);
+        uploadedImagePreviews = uploadedImagePreviews.filter((_, i) => i !== index);
+    }
+    
+    // Αφαίρεση υπάρχουσας εικόνας
+    function removeExistingImage(index: number) {
+        existingImages = existingImages.filter((_, i) => i !== index);
+    }
     
     async function handleSubmit() {
         isSubmitting = true;
@@ -41,10 +124,20 @@
             }
             
             formData.append('title', title);
-            formData.append('description', description);
+            formData.append('description', description || '');
             formData.append('content', content);
             formData.append('tags', tagsString);
             formData.append('published', published.toString());
+            
+            // Προσθήκη των υπαρχόντων εικόνων που δεν αφαιρέθηκαν
+            formData.append('existingImages', JSON.stringify(existingImages));
+            
+            // Προσθήκη των νέων εικόνων
+            uploadedImages.forEach((image, index) => {
+                if (image && image.name) { // Βεβαιωνόμαστε ότι το αρχείο είναι έγκυρο
+                    formData.append(`image_${index}`, image);
+                }
+            });
             
             const endpoint = isCreating ? '?/createBlog' : '?/updateBlog';
             
@@ -61,9 +154,7 @@
         
             progressStore.completeProgress(800);
             
-            
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
             
             await invalidateAll();
             isOpen = false;
@@ -81,7 +172,6 @@
         published = !published;
     }
     
-    
     $effect(() => {
         if (isOpen && blog) {
             setTimeout(() => {
@@ -90,6 +180,10 @@
                 content = blog.content || '';
                 tagsString = blog.tags ? blog.tags.join(', ') : '';
                 published = blog.published || false;
+                existingImages = blog.images || [];
+                // Καθαρισμός των uploaded images κάθε φορά που ανοίγει το modal με υπάρχον blog
+                uploadedImages = [];
+                uploadedImagePreviews = [];
             }, 100);
         }
     });
@@ -122,6 +216,7 @@
             <form 
                 use:enhance
                 onsubmit={(e) => {
+                    e.preventDefault();
                     handleSubmit();
                 }}
                 class="space-y-6"
@@ -171,7 +266,6 @@
                                 </button>
                             </div>
                             
-                            
                             <textarea
                                 id="content"
                                 bind:value={content}
@@ -198,36 +292,96 @@
                         />
                     </div>
                     
+                    <!-- Εμφάνιση υπαρχόντων εικόνων (αν υπάρχουν) -->
+                    {#if existingImages.length > 0}
+                        <div>
+                            <Label>Υπάρχουσες Εικόνες</Label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-2">
+                                {#each existingImages as image, i}
+                                    <div class="relative group">
+                                        <img 
+                                            src={image} 
+                                            alt="Blog" 
+                                            class="w-full h-32 object-cover rounded-lg shadow-sm"
+                                        />
+                                        <button 
+                                            type="button"
+                                            onclick={() => removeExistingImage(i)}
+                                            class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            title="Αφαίρεση εικόνας"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+                    
+                    <!-- Εμφάνιση νέων εικόνων που έχουν επιλεγεί -->
+                    {#if uploadedImagePreviews.length > 0}
+                        <div>
+                            <Label>Νέες Εικόνες</Label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-2">
+                                {#each uploadedImagePreviews as preview, i}
+                                    <div class="relative group">
+                                        <img 
+                                            src={preview} 
+                                            alt="Upload preview" 
+                                            class="w-full h-32 object-cover rounded-lg shadow-sm"
+                                        />
+                                        <button 
+                                            type="button"
+                                            onclick={() => removeUploadedImage(i)}
+                                            class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            title="Αφαίρεση εικόνας"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+                    
+                    <!-- Περιοχή για ανέβασμα εικόνων -->
                     <div
-						class="flex w-full items-center justify-center"
-						role="button"
-						tabindex="0"
-						aria-label="Περιοχή για ανέβασμα εικόνων"
-						>
-							<label
-								for="dropzone-file"
-								class="flex h-48 w-full flex-col items-center justify-center border-2
-                                        cursor-pointer rounded-lg border-dashed
-                                        transition-colors duration-200 hover:bg-gray-100"
-							        >
-								<div class="flex flex-col items-center justify-center pt-5 pb-6">
-									<Upload class="mb-4 h-8 w-8 text-gray-500" />
-									<p class="mb-2 text-sm text-gray-500">
-										<span class="font-semibold">Πατήστε για ανέβασμα</span> ή σύρετε και αφήστε
-									</p>
-									<p class="text-xs text-gray-500">
-										Αποδεκτοί τύποι: JPG, PNG, GIF, SVG (έως 5MB/αρχείο)
-									</p>
-								</div>
-								<input
-									id="dropzone-file"
-									type="file"
-									accept="image/*"
-									multiple
-									class="hidden"
-								/>
-							</label>
-						</div>
+                        class="flex w-full items-center justify-center"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Περιοχή για ανέβασμα εικόνων"
+                        ondragenter={handleDragEnter}
+                        ondragleave={handleDragLeave}
+                        ondragover={handleDragOver}
+                        ondrop={handleDrop}
+                    >
+                        <label
+                            for="dropzone-file"
+                            class={`flex h-48 w-full flex-col items-center justify-center border-2
+                                    cursor-pointer rounded-lg border-dashed
+                                    transition-colors duration-200 hover:bg-gray-100
+                                    ${dragActive ? 'border-[#8B6B4A] bg-[#8B6B4A]/5' : 'border-gray-300'}`}
+                        >
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <Upload class="mb-4 h-8 w-8 text-gray-500" />
+                                <p class="mb-2 text-sm text-gray-500">
+                                    <span class="font-semibold">Πατήστε για ανέβασμα</span> ή σύρετε και αφήστε
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    Αποδεκτοί τύποι: JPG, PNG, GIF, SVG (έως 5MB/αρχείο)
+                                </p>
+                            </div>
+                            <input
+                                id="dropzone-file"
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                class="hidden"
+                                onchange={handleImageUpload}
+                                disabled={isSubmitting}
+                            />
+                        </label>
+                    </div>
                 </div>
             </form>
         </div>

@@ -11,10 +11,11 @@
     
     let { data }: { data: PageData } = $props();
     let blogs = $state<Blog[]>([]);
+    let total: number = $state(data.totalBlogs ?? 0);
     $effect(() => {
         blogs = data.blogs ?? [];
+        total = data.totalBlogs ?? 0;
     });
-    let total: number = data.totalBlogs ?? 0;
     
     let searchQuery = $state('');
     let mounted = $state(false);

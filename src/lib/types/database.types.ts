@@ -105,7 +105,7 @@ export interface Blog {
   title: string;
   description : string | null;
   content: string
-  images: any;
+  images: string[];
   tags: string[];
   author_id: string;
   published: boolean;
@@ -124,7 +124,7 @@ export interface CreateBlogData {
   title: string;
   description?: string | null;
   content: string;
-  images?: Record<string, any>;
+  images?: string[];
   tags?: string[];
   author_id: string | null;
   published?: boolean;
@@ -134,7 +134,7 @@ export interface UpdateBlogData {
   title?: string;
   description?: string | null;
   content?: string;
-  images?: Record<string, any>; 
+  images?: string[]; 
   tags?: string[];
   published?: boolean;
 }

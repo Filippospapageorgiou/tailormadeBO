@@ -41,6 +41,10 @@ npm install @supabase/supabase-js @supabase/ssr
 ```bash
 npm i lucide-svelte
 ```
+```bash
+npm install uuid
+npm install @types/uuid --save-dev
+```
 
 Then, install the remaining dependencies:
 
