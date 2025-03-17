@@ -29,13 +29,12 @@
 </script>
 
 <Navbar />
-
 {#if mounted}
 <main class="min-h-screen bg-white pt-24 pb-16" transition:fade={{ duration: 500, delay: 200 }}>
     <div class="container mx-auto px-4">
         <header class="mb-12 text-center">
             <h1 class="text-4xl md:text-5xl font-display font-medium text-[#8B6B4A] mb-4" in:fly={{ y: 20, duration: 800, delay: 300 }}>
-                Tailomade Blog
+                Tailormade Blog
             </h1>
         </header>
         {#if blogs.length > 0}
@@ -49,11 +48,11 @@
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center">
                                     <img 
-                                        src={blog.author?.image_url || '/placeholder-user.jpg'} 
-                                        alt={blog.author?.username || "Συντάκτης"}
+                                        src={blog.author?.image_url} 
+                                        alt={blog.author?.username}
                                         class="w-8 h-8 rounded-full object-cover mr-3"
                                     />
-                                    <span class="text-sm text-gray-600">{blog.author?.username || "Συντάκτης"}</span>
+                                    <span class="text-sm text-gray-600">{blog.author?.username}</span>
                                 </div>
                                 
                                 <div class="flex items-center text-sm text-gray-500">

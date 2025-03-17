@@ -62,6 +62,8 @@ export const actions: Actions = {
       .insert([blogData])
       .select();
 
+    
+
     if (error) {
       console.error('Error creating blog post:', error);
       return fail(500, {
@@ -129,7 +131,6 @@ export const actions: Actions = {
     };
   },
 
-  // Διαγραφή blog post
   deleteBlog: async ({ request, locals: { supabase } }) => {
     const formData = await request.formData();
     const id = formData.get('id');

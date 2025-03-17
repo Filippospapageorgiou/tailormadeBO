@@ -70,7 +70,7 @@
         isLoading = true;
         
         try {
-            await wait(800); // Προσομοίωση καθυστέρησης επεξεργασίας
+            await wait(800); 
             
             if (onSuccess) {
                 onSuccess();

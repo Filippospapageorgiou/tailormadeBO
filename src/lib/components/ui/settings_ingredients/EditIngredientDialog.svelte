@@ -120,7 +120,6 @@
                         
                         <form method="post" action="?/updateIngredient" class="space-y-4"
                             onsubmit={async () => {
-                                await wait(1000);
                                 open = false;
                                 await invalidateAll();
                             }}

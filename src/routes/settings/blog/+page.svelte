@@ -3,17 +3,18 @@
     import type { PageData } from "./$types";
     import { fade } from 'svelte/transition';
     import { onMount } from "svelte";
-    import { Search, PlusCircle, Edit, Trash2, Tag, Eye, EyeOff } from 'lucide-svelte';
-    import { invalidateAll } from "$app/navigation";
+    import { Search, PlusCircle, Edit, Tag, Eye, EyeOff } from 'lucide-svelte';
     import GlobalProgressBar from "$lib/components/ui/GlobalProgressBar.svelte";
-    import { progressStore } from '$lib/stores/progressStore';
 	import BlogPostEditor from "$lib/components/ui/settings_blog/BlogPostEditor.svelte";
     import DeleteBlogDialog from "$lib/components/ui/settings_blog/DeleteBlogDialog.svelte";
     
     
     let { data }: { data: PageData } = $props();
-    const blogs: Blog[] = data.blogs ?? [];
-    const total: number = data.totalBlogs ?? 0;
+    let blogs = $state<Blog[]>([]);
+    $effect(() => {
+        blogs = data.blogs ?? [];
+    });
+    let total: number = data.totalBlogs ?? 0;
     
     let searchQuery = $state('');
     let mounted = $state(false);
@@ -69,9 +70,7 @@
     }
 </script>
 
-<!-- Προσθήκη του GlobalProgressBar -->
 <GlobalProgressBar />
-
 {#if isEditorOpen}
     <BlogPostEditor 
         bind:isOpen={isEditorOpen} 
@@ -84,7 +83,7 @@
     
         <div class="flex flex-col pb-2 border-b" in:fade={{ duration: 400, delay: 150 }}>
             <h1 class="text-2xl font-medium text-[#8B6B4A]">Διαχείριση Blog</h1>
-            <p class="text-sm text-gray-500">Συνολικά άρθρα: {total}</p>
+            <p class="text-sm pt-2 text-gray-500">Συνολικά άρθρα: {total}</p>
         </div>
 
     
@@ -112,7 +111,7 @@
             </button>
         </div>
 
-        <!-- Λίστα Blog Posts -->
+        
         <div class="grid grid-cols-1 gap-6" in:fade={{ duration: 500, delay: 300 }}>
             {#each filteredBlogs as blog (blog.id)}
                 <div 

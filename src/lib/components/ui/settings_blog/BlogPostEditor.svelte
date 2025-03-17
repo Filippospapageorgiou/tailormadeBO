@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Blog } from "$lib/types/database.types";
     import { fade, fly } from 'svelte/transition';
-    import { X, Image, Check, Save, EyeOff, Eye, AtSign } from 'lucide-svelte';
+    import { X, Image, Check, Save, EyeOff, Eye, AtSign, Upload } from 'lucide-svelte';
     import { invalidateAll } from "$app/navigation";
     import { progressStore } from '$lib/stores/progressStore';
     import Label from "$lib/components/ui/Label.svelte";
@@ -26,6 +26,7 @@
     let tagsString = $state(blog?.tags ? blog.tags.join(', ') : '');
     let published = $state(blog?.published || false);
     let isSubmitting = $state(false);
+    
     
     async function handleSubmit() {
         isSubmitting = true;
@@ -56,16 +57,14 @@
                 throw new Error('Σφάλμα κατά την αποθήκευση');
             }
             
-            // Περιμένουμε λίγο για να δείξουμε την πρόοδο
             await new Promise(resolve => setTimeout(resolve, 800));
-            
-            // Ολοκληρώνουμε την πρόοδο
+        
             progressStore.completeProgress(800);
             
-            // Περιμένουμε να ολοκληρωθεί το animation του progress bar
+            
             await new Promise(resolve => setTimeout(resolve, 1000));
             
-            // Ανανέωση των δεδομένων και κλείσιμο του editor
+            
             await invalidateAll();
             isOpen = false;
             if (onClose) onClose();
@@ -82,7 +81,7 @@
         published = !published;
     }
     
-    // Σύντομη καθυστέρηση για να διασφαλίσουμε ότι το περιεχόμενο είναι έτοιμο όταν ανοίγει ο editor
+    
     $effect(() => {
         if (isOpen && blog) {
             setTimeout(() => {
@@ -102,7 +101,7 @@
         class="w-full max-w-4xl h-full max-h-[90vh] bg-white rounded-lg shadow-xl flex flex-col overflow-hidden"
         transition:fly={{ duration: 300, y: 20 }}
     >
-        <!-- Header -->
+        
         <div class="flex items-center justify-between p-4 border-b">
             <h2 class="text-xl font-semibold text-gray-900">
                 {isCreating ? 'Δημιουργία νέου άρθρου' : 'Επεξεργασία άρθρου'}
@@ -119,7 +118,6 @@
             </button>
         </div>
         
-        <!-- Form -->
         <div class="flex-1 overflow-y-auto p-6">
             <form 
                 use:enhance
@@ -138,6 +136,7 @@
                             required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B6B4A] focus:border-[#8B6B4A]"
                             placeholder="Εισάγετε τον τίτλο του άρθρου"
+                            disabled={isSubmitting}
                         />
                     </div>
                     
@@ -155,7 +154,6 @@
                     <div>
                         <Label for="content" required>Περιεχόμενο</Label>
                         <div class="border border-gray-300 rounded-md shadow-sm overflow-hidden">
-                            <!-- Απλό toolbar για τον editor -->
                             <div class="flex items-center gap-1 p-2 bg-gray-50 border-b">
                                 <button 
                                     type="button"
@@ -181,6 +179,7 @@
                                 rows="15"
                                 class="w-full px-3 py-2 focus:outline-none focus:ring-[#8B6B4A] border-none"
                                 placeholder="Γράψτε εδώ το περιεχόμενο του άρθρου..."
+                                disabled={isSubmitting}
                             ></textarea>
                         </div>
                         <p class="mt-1 text-xs text-gray-500">
@@ -198,6 +197,37 @@
                             placeholder="Διαχωρίστε τα tags με κόμμα (πχ. καφές, συνταγές, τεχνικές)"
                         />
                     </div>
+                    
+                    <div
+						class="flex w-full items-center justify-center"
+						role="button"
+						tabindex="0"
+						aria-label="Περιοχή για ανέβασμα εικόνων"
+						>
+							<label
+								for="dropzone-file"
+								class="flex h-48 w-full flex-col items-center justify-center border-2
+                                        cursor-pointer rounded-lg border-dashed
+                                        transition-colors duration-200 hover:bg-gray-100"
+							        >
+								<div class="flex flex-col items-center justify-center pt-5 pb-6">
+									<Upload class="mb-4 h-8 w-8 text-gray-500" />
+									<p class="mb-2 text-sm text-gray-500">
+										<span class="font-semibold">Πατήστε για ανέβασμα</span> ή σύρετε και αφήστε
+									</p>
+									<p class="text-xs text-gray-500">
+										Αποδεκτοί τύποι: JPG, PNG, GIF, SVG (έως 5MB/αρχείο)
+									</p>
+								</div>
+								<input
+									id="dropzone-file"
+									type="file"
+									accept="image/*"
+									multiple
+									class="hidden"
+								/>
+							</label>
+						</div>
                 </div>
             </form>
         </div>
