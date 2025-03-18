@@ -15,6 +15,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
     .order('created_at', { ascending: false })
     .returns<BlogWithAuthor[]>();
 
+
   if (error) {
     console.error('Error fetching blogs:', error);
     return { blogs: [] };

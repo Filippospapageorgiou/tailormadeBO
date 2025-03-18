@@ -14,13 +14,111 @@
 	// svelte-ignore state_referenced_locally
 	let activeImageIndices = $state(blogs.map(() => 0));
 	// svelte-ignore state_referenced_locally
-	let transitioning = $state(blogs.map(() => false)); // Κατάσταση μετάβασης για κάθε blog
+	let transitioning = $state(blogs.map(() => false)); 
+	
+	// Για την καταγραφή των άρθρων που έχουν διαβαστεί
+	let blogReadTimeouts = $state<ReturnType<typeof setTimeout>[]>([]);
+	let readBlogs = $state<Set<number>>(new Set());
+	let observerMap = $state<Map<number, IntersectionObserver>>(new Map());
+	let blogRefs = $state<HTMLElement[]>([]);
+	
+	// Αρχικοποίηση του array με null τιμές
+	$effect(() => {
+		blogRefs = Array(blogs.length).fill(null);
+		blogReadTimeouts = Array(blogs.length).fill(null);
+	});
+	
+	// Η ελάχιστη διάρκεια που πρέπει να είναι ορατό ένα blog για να θεωρηθεί ως αναγνωσμένο (2 δευτερόλεπτα)
+	const READ_THRESHOLD_MS = 2000;
 
 	onMount(() => {
 		setTimeout(() => {
 			mounted = true;
+			
+			// Δημιουργία Intersection Observers για κάθε blog με μια μικρή καθυστέρηση
+			// για να βεβαιωθούμε ότι τα refs έχουν συνδεθεί
+			setTimeout(() => {
+				setupIntersectionObservers();
+			}, 500);
 		}, 100);
+		
+		// Καθαρισμός όταν το component καταστρέφεται
+		return () => {
+			cleanupTimeouts();
+			cleanupObservers();
+		};
 	});
+	
+	// Καθαρισμός timeouts
+	function cleanupTimeouts() {
+		blogReadTimeouts.forEach(timeout => {
+			if (timeout) clearTimeout(timeout);
+		});
+	}
+	
+	// Καθαρισμός observers
+	function cleanupObservers() {
+		observerMap.forEach(observer => observer.disconnect());
+		observerMap.clear();
+	}
+	
+	// Ρύθμιση των intersection observers για κάθε blog
+	function setupIntersectionObservers() {
+		blogs.forEach((blog, index) => {
+			const element = blogRefs[index];
+			if (!element) return;
+			
+			const observer = new IntersectionObserver(
+				(entries) => {
+					entries.forEach(entry => {
+						if (entry.isIntersecting) {
+							// Το blog είναι ορατό στην οθόνη
+							const timeout = setTimeout(() => {
+								markBlogAsRead(blog.id);
+							}, READ_THRESHOLD_MS);
+							
+							blogReadTimeouts[index] = timeout;
+						} else {
+							// Το blog δεν είναι πλέον ορατό
+							if (blogReadTimeouts[index]) {
+								clearTimeout(blogReadTimeouts[index]);
+							}
+						}
+					});
+				},
+				{
+					threshold: 0.5 // Τουλάχιστον 50% του blog πρέπει να είναι ορατό
+				}
+			);
+			
+			observer.observe(element);
+			observerMap.set(blog.id, observer);
+		});
+	}
+	
+	// Σημείωση ενός blog ως αναγνωσμένου
+	async function markBlogAsRead(blogId: number) {
+		// Αν το έχουμε ήδη σημειώσει ως αναγνωσμένο στο τρέχον session, δεν το ξανακάνουμε
+		if (readBlogs.has(blogId)) return;
+		
+		try {
+			const response = await fetch('/api/blog/read', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ blog_id: blogId })
+			});
+			
+			if (response.ok) {
+				// Προσθήκη στη λίστα των τοπικά αναγνωσμένων
+				readBlogs.add(blogId);
+				console.log(`Blog ${blogId} marked as read`);
+			}
+		} catch (error) {
+			console.error(`Error marking blog ${blogId} as read:`, error);
+		}
+	}
 
 	function formatDate(dateString: string) {
 		const date = new Date(dateString);
@@ -92,8 +190,23 @@
 				<div class="mx-auto max-w-5xl space-y-12">
 					{#each blogs as blog, index (blog.id)}
 						<article
+							bind:this={blogRefs[index]}
 							class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md"
 							in:fade={{ duration: 500, delay: 600 + index * 100 }}
+							onmouseenter={() => {
+								// Ξεκινάμε ένα timeout για την καταγραφή ανάγνωσης
+								const timeout = setTimeout(() => {
+									markBlogAsRead(blog.id);
+								}, READ_THRESHOLD_MS);
+								
+								blogReadTimeouts[index] = timeout;
+							}}
+							onmouseleave={() => {
+								// Ακυρώνουμε το timeout αν ο χρήστης φύγει πριν ολοκληρωθεί ο χρόνος
+								if (blogReadTimeouts[index]) {
+									clearTimeout(blogReadTimeouts[index]);
+								}
+							}}
 						>
 							<div class="p-6 md:p-8">
 								<!-- Header με πληροφορίες συγγραφέα και ημερομηνία -->

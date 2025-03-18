@@ -3,6 +3,11 @@
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import Navbar from '$lib/components/Navbar.svelte';
+  import NewBlogNotification from '$lib/components/ui/NewBlogNotification.svelte';
+  import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
+  const unreadBlogs = $derived(data.unreadBlogs || []);
   
   const images : string[] = $state([
     '/TAILOR MADE PRESENTATION 2024_page-0002.jpg',
@@ -18,6 +23,7 @@
   
   let currentImageIndex:number = $state(0);
   let isTransitioning:boolean = $state(false);
+  let showNotification:boolean = $state(true);
   
   onMount(() => {
     const interval = setInterval(() => {
@@ -36,6 +42,16 @@
       }, 4000); // Αυξήθηκε στα 2000ms για πιο ομαλή μετάβαση
     }
   }
+
+  function handleCloseNotification() {
+    showNotification = false;
+  }
+
+  // Σήμανση όλων των blogs ως αναγνωσμένα
+  //async function handleMarkAsRead(){
+  //  
+  //}
+
 </script>
 
 <Navbar />
@@ -79,6 +95,14 @@
       CRAFTING EXCEPTIONAL COFFEE EXPERIENCES
     </p>
   </div>
+
+  {#if unreadBlogs.length > 0 && showNotification}
+    <NewBlogNotification 
+      blogs={unreadBlogs} 
+      onClose={handleCloseNotification}
+    />
+  {/if}
+
 </div>
 
 <style>

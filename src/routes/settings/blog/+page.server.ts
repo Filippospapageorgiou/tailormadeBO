@@ -2,7 +2,7 @@ import type { PageServerLoad } from './$types';
 import type { Blog, CreateBlogData, UpdateBlogData } from '$lib/types/database.types';
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
-import { v4 as uuidv4 } from 'uuid'; // Προσθέστε αυτό στις εξαρτήσεις αν δεν υπάρχει ήδη
+import { v4 as uuidv4 } from 'uuid';
 
 export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
   const { data: blogs, error: blogsError } = await supabase
@@ -21,13 +21,15 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
     console.error('Error fetching blogs:', blogsError);
     return { blogs: [], totalBlogs: 0 };
   }
-
+  
   const processedBlogs = blogs?.map(blog => {
     return {
       ...blog,
       images: Array.isArray(blog.images) ? blog.images : []
     };
   }) || [];
+
+
 
   return {
     blogs: processedBlogs,
@@ -271,6 +273,15 @@ export const actions: Actions = {
 
     if (!id) {
       return fail(400, { message: 'ID is required' });
+    }
+
+    const {error: blogReadError } = await supabase
+      .from('blog_reads')
+      .delete()
+      .eq('blog_id',id);
+    
+    if(blogReadError){
+      console.error("Error deleting system blog_reads");
     }
     
     // Πρώτα παίρνουμε τις εικόνες του blog για να τις διαγράψουμε από το storage
