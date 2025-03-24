@@ -155,3 +155,10 @@ export interface BlogWithAuthor extends Blog {
     image_url: string | null;
   }
 }
+
+export interface UserTermsAccept {
+  id:number;
+  user_id:string;
+  is_accepted: boolean;
+  created_ad: string;
+}

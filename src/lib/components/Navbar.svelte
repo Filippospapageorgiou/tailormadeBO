@@ -17,7 +17,7 @@
     const menuItems = $state([
         { title: 'ΦΙΛΟΣΟΦΙΑ', path: '/philosophy' },
         { title: 'ΣΥΝΤΑΓΕΣ', path: '/recipes' },
-        { title: 'ΕΞΟΠΛΙΣΜΟΣ', path: '/equipment' },
+        { title: 'ΕΠΙΚΟΙΝΩΝΙΑ', path: '/equipment' },
         { title: 'BLOG', path: '/blog' }
     ]);
     

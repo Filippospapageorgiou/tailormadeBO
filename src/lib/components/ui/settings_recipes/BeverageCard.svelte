@@ -122,7 +122,7 @@
 	<!-- Εικόνα (σταθερό μέγεθος με placeholder αν δεν υπάρχει) -->
 	<div class="mb-3 h-48 w-full overflow-hidden rounded-md bg-gray-100">
 		<img
-			src={beverage.image_url || '/placeholder-beverage.jpg'}
+			src={beverage.image_url}
 			alt={beverage.name}
 			class="h-full w-full object-cover"
 		/>

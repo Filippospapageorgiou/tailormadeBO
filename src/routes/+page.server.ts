@@ -55,11 +55,28 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
     // 4. Περιορίζουμε στα 5 πιο πρόσφατα μη αναγνωσμένα
     const limitedUnreadBlogs = unreadBlogs.slice(0, 5);
 
+    let userAccepted:boolean = false;
+    const { data:AcceptedTerms, error:AcceptedTermsError } = await supabase
+      .from("user_term_acceptance")
+      .select("*")
+      .eq("user_id",user.id);
+
+    if(AcceptedTermsError){
+      console.error('Error fetching read blogs:', readsError);
+      return { userAccepted };
+    }
+
+    if(AcceptedTerms.length > 0){
+      userAccepted = true;
+    }
+
+
     return {
-      unreadBlogs: limitedUnreadBlogs
+      unreadBlogs: limitedUnreadBlogs,
+      userAccepted: userAccepted
     };
   } catch (error) {
-    console.error('Error loading unread blogs:', error);
+    console.error('Error loading data to landing page', error);
     return {
       unreadBlogs: []
     };

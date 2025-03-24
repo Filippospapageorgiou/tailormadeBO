@@ -183,7 +183,7 @@
 					class="font-display mb-4 text-4xl font-medium text-[#8B6B4A] md:text-5xl"
 					in:fly={{ y: 20, duration: 800, delay: 300 }}
 				>
-					Tailormade Blog
+					Tailor Made Blog
 				</h1>
 			</header>
 			{#if blogs.length > 0}

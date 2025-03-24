@@ -2,12 +2,17 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
+  import { invalidateAll } from '$app/navigation';
   import Navbar from '$lib/components/Navbar.svelte';
   import NewBlogNotification from '$lib/components/ui/NewBlogNotification.svelte';
+  import TermsAcceptanceModal from '$lib/components/ui/TermsAcceptanceModal.svelte';
   import type { PageProps } from './$types';
 
-	let { data }: PageProps = $props();
+  let { data }: PageProps = $props();
   const unreadBlogs = $derived(data.unreadBlogs || []);
+  const userAccepted = $derived(data.userAccepted || false);
+  
+  const termsAndAcceptance: string = $state("Με την είσοδό σας στην εφαρμογή, επιβεβαιώνετε ότι οι πληροφορίες που ακολουθούν, σχετικά με την προετοιμασία και εκτέλεση των συνταγών και του μενού του TAILOR MADE COFFEE ROASTERS, προορίζονται αποκλειστικά για εσωτερική χρήση από το προσωπικό των καταστημάτων μας. Δεσμεύεστε να μην κοινοποιήσετε, διανείμετε ή διαρρεύσετε αυτές τις πληροφορίες σε τρίτους. Η μη εξουσιοδοτημένη χρήση ή αποκάλυψη των παραπάνω δεδομένων δύναται να επιφέρει νομικές κυρώσεις.");
   
   const images : string[] = $state([
     '/TAILOR MADE PRESENTATION 2024_page-0002.jpg',
@@ -21,9 +26,9 @@
     '/TAILOR MADE PRESENTATION 2024_page-0010.jpg',
   ]);
   
-  let currentImageIndex:number = $state(0);
-  let isTransitioning:boolean = $state(false);
-  let showNotification:boolean = $state(true);
+  let currentImageIndex: number = $state(0);
+  let isTransitioning: boolean = $state(false);
+  let showNotification: boolean = $state(true);
   
   onMount(() => {
     const interval = setInterval(() => {
@@ -39,19 +44,33 @@
       currentImageIndex = (currentImageIndex + 1) % images.length;
       setTimeout(() => {
         isTransitioning = false;
-      }, 4000); // Αυξήθηκε στα 2000ms για πιο ομαλή μετάβαση
+      }, 4000);
     }
   }
 
   function handleCloseNotification() {
     showNotification = false;
   }
-
-  // Σήμανση όλων των blogs ως αναγνωσμένα
-  //async function handleMarkAsRead(){
-  //  
-  //}
-
+  
+  async function handleAcceptTerms() {
+    try {
+      const response = await fetch('/api/terms/accept', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        // Ανανεώνουμε τα δεδομένα της σελίδας για να ενημερωθεί το userAccepted
+        await invalidateAll();
+      } else {
+        console.error('Error accepting terms:', await response.text());
+      }
+    } catch (error) {
+      console.error('Failed to accept terms:', error);
+    }
+  }
 </script>
 
 <Navbar />
@@ -65,13 +84,14 @@
         class="absolute inset-0 transition-all duration-2000 ease-in-out"
         class:opacity-100={index === currentImageIndex}
         class:opacity-0={index !== currentImageIndex}
+        class:blur-sm={!userAccepted}
       >
         <img
           src={image}
           alt="Background"
           class="w-full h-full object-cover"
         />
-        <div class="absolute inset-0 bg-black/30"></div>
+        <div class="absolute inset-0 {!userAccepted ? 'bg-black/60' : 'bg-black/30'} transition-all duration-1000"></div>
       </div>
     {/if}
   {/each}
@@ -96,13 +116,24 @@
     </p>
   </div>
 
-  {#if unreadBlogs.length > 0 && showNotification}
+  {#if unreadBlogs.length > 0 && showNotification && userAccepted}
     <NewBlogNotification 
       blogs={unreadBlogs} 
       onClose={handleCloseNotification}
     />
   {/if}
-
+  
+  <!-- Εμφάνιση του modal αποδοχής όρων με καθυστέρηση για πιο smooth εμπειρία -->
+  {#if !userAccepted}
+    {#key userAccepted}
+      <div transition:fade={{ duration: 800, delay: 300 }}>
+        <TermsAcceptanceModal
+          termsText={termsAndAcceptance}
+          onAccept={handleAcceptTerms}
+        />
+      </div>
+    {/key}
+  {/if}
 </div>
 
 <style>
