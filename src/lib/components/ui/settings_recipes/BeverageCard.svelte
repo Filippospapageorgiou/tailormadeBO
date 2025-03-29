@@ -128,11 +128,12 @@
 		/>
 	</div>
 
-	<!-- Περιγραφή -->
+	<!-- Περιγραφή με περικοπή -->
 	{#if beverage.description}
-		<p class="mb-3 text-sm text-neutral-600">{beverage.description}</p>
+		<p class="mb-3 text-sm text-neutral-600 line-clamp-1">
+			{beverage.description}
+		</p>
 	{/if}
-
 	<!-- Expand button για τα συστατικά -->
 	<button
 		onclick={toggleExpand}
