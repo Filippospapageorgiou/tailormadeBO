@@ -30,7 +30,8 @@ export const actions: Actions = {
         email: authData.user.email!,
         image_url: DEFAULT_AVATAR_URL,
         username: data.username || data.email.split('@')[0],
-        role: 'employee'
+        role: 'employee',
+        org_id: 0
       };
 
       const { error: dbError } = await supabase
@@ -76,7 +77,8 @@ export const actions: Actions = {
           email: user.email!,
           image_url: DEFAULT_AVATAR_URL,
           username: user.email!.split('@')[0],
-          role: 'employee'
+          role: 'employee',
+          org_id: 0
         };
 
         const { error: insertError } = await supabase

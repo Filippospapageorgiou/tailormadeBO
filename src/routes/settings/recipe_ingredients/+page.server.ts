@@ -3,7 +3,7 @@ import type { Beverage, Ingredient, RecipeIngredient } from '$lib/types/database
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
-const defaultInageUrl:string = "";
+const defaultInageUrl:string = "https://uhrpdmoknmrbosqenotk.supabase.co/storage/v1/object/public/beverages//default_url.png";
 
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
   // Φέρνουμε όλα τα ροφήματα
@@ -104,16 +104,23 @@ export const actions: Actions = {
     const id = formData.get('id') as string;
     const name = formData.get('name') as string;
     const description = formData.get('description') as string || null;
-    const image_url = formData.get('image_url') as string || null;
+    const existing_image_url = formData.get('image_url') as string || null;
     const execution = formData.get('execution') as string || null;
+
+    const imageFile = formData.get("image_file") as File || null;
+
+    console.log("File parsing : " + existing_image_url);
+    console.log("File came " + imageFile);
 
     if (!id || !name) {
       return fail(400, {
         message: 'Το ID και το όνομα του ροφήματος είναι υποχρεωτικά',
         invalid: true,
-        values: { id, name, description, image_url }
+        values: { id, name, description, url:existing_image_url }
       });
     }
+
+
 
     // Έλεγχος αν υπάρχει ήδη ρόφημα με το ίδιο όνομα (εκτός από το τρέχον)
     const { data: existingBeverage, error: searchError } = await supabase
@@ -128,7 +135,7 @@ export const actions: Actions = {
       return fail(500, {
         message: 'Σφάλμα κατά τον έλεγχο για υπάρχον ρόφημα',
         invalid: true,
-        values: { id, name, description, image_url ,execution }
+        values: { id, name, description, url:existing_image_url ,execution }
       });
     }
 
@@ -136,9 +143,68 @@ export const actions: Actions = {
       return fail(400, {
         message: 'Υπάρχει ήδη ρόφημα με αυτό το όνομα',
         invalid: true,
-        values: { id, name, description, image_url }
+        values: { id, name, description, url:existing_image_url }
       });
     }
+
+
+    //Αν υπάρχει νέο αρχείο εικόνας ανέβασμα στο supabase storage
+    let image_url = existing_image_url;
+    if(imageFile instanceof File && imageFile.size > 0){
+
+      if(!imageFile.type.startsWith('image/')){
+        return fail(400,{
+          message: 'Μη έγκυρος τύπος αρχείου. Μόνο εικόνες επιτρέπονται.',
+          invalid: true,
+          values: { id, name, description, image_url }
+        })
+      }
+
+      // Έλεγχος μεγέθους (5MB)
+      if (imageFile.size > 5 * 1024 * 1024) {
+        return fail(400, {
+          message: 'Το μέγεθος της εικόνας δεν πρέπει να ξεπερνά τα 5MB',
+          invalid: true,
+          values: { id, name, description, image_url }
+        });
+      }
+
+      //ανεβάσμα στο storage
+      try{
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `beverage-${id}-${Date.now()}.${fileExt}`;
+
+        const arrayBuffer = await imageFile.arrayBuffer();
+
+        const { data, error } = await supabase.storage
+          .from('beverages')
+          .upload(fileName, arrayBuffer, {
+            contentType: imageFile.type,
+            upsert: false
+          });
+        
+        if (error) throw error;
+
+          // Δημιουργία του public URL
+        const { data: publicUrlData } = supabase.storage
+          .from('beverages')
+          .getPublicUrl(data.path);
+    
+        image_url = publicUrlData.publicUrl;
+      }catch (error) {
+        console.error('Σφάλμα κατά το ανέβασμα της εικόνας:', error);
+        return fail(500, {
+          message: 'Σφάλμα κατά το ανέβασμα της εικόνας',
+          invalid: true,
+          values: { id, name, description, image_url: existing_image_url }
+        });
+      }
+    }else if(existing_image_url === ''){
+        // Αν το image_url είναι κενό, αλλά δεν έχει σταλεί νέο αρχείο,
+        // σημαίνει ότι ο χρήστης αφαίρεσε την εικόνα
+        image_url = null;
+    }
+
 
     const { data, error } = await supabase
       .from('beverages')

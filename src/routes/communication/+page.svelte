@@ -1,6 +1,6 @@
 <!-- routes/philosophy/+page.svelte -->
 <script lang="ts">
-    import type { PageData } from '../equipment/$types';
+    import type { PageData } from '../communication/$types';
     import Navbar from '$lib/components/Navbar.svelte';
     import { fade } from 'svelte/transition';
     import { onMount } from 'svelte';

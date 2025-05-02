@@ -5,25 +5,28 @@
     import { userStore } from '$lib/stores/userStore';
     import { onMount } from 'svelte';
     import Avatar from './ui/avatar/Avatar.svelte';
-
     
+
     let logo = $state('/logo.png')
     let isMenuOpen = $state(false);
     let isMobile = $state(false);
     let isAdmin = $state(false);
-    
+    let orgId:number | undefined = $state();
 
 
     const menuItems = $state([
         { title: 'ΦΙΛΟΣΟΦΙΑ', path: '/philosophy' },
         { title: 'ΣΥΝΤΑΓΕΣ', path: '/recipes' },
-        { title: 'ΕΠΙΚΟΙΝΩΝΙΑ', path: '/equipment' },
+        { title: 'ΕΞΟΠΛΙΣΜΟΣ', path: '/equipment'},
+        { title: 'ΕΠΙΚΟΙΝΩΝΙΑ', path: '/communication' },
         { title: 'BLOG', path: '/blog' }
     ]);
     
     $effect(() => {
         isAdmin = $userStore.user?.role === 'admin';
+        orgId = $userStore.user?.org_id;
     });
+
 
     function checkMobile() {
         isMobile = window.innerWidth < 768;
@@ -65,23 +68,27 @@
 
             <!-- Desktop Menu -->
             <div class="hidden md:flex items-center space-x-10">
-                {#each menuItems as { title, path }}
-                    <a 
-                        href={path}
-                        class="relative text-[#8B6B4A] hover:text-[#6F563C] tracking-widest text-base font-black 
-                               transition-all duration-300 ease-in-out transform hover:-translate-y-px
-                               drop-shadow-sm hover:drop-shadow-lg
-                               after:absolute after:w-0 after:h-0.5 after:bg-[#6F563C] 
-                               after:left-0 after:bottom-[-4px] after:transition-all after:duration-300
-                               hover:after:w-full"
-                    >
-                        {title}
-                    </a>
-                {/each}
-                
-                <div class="flex items-center space-x-4">
-                    <div class="flex items-center">
-                        <Avatar />
+                <div class="hidden md:flex items-center space-x-10">
+                    {#each menuItems as { title, path }}
+                        {#if title !== "ΕΞΟΠΛΙΣΜΟΣ" || orgId === 1}
+                            <a 
+                                href={path}
+                                class="relative text-[#8B6B4A] hover:text-[#6F563C] tracking-widest text-base font-black 
+                                      transition-all duration-300 ease-in-out transform hover:-translate-y-px
+                                      drop-shadow-sm hover:drop-shadow-lg
+                                      after:absolute after:w-0 after:h-0.5 after:bg-[#6F563C] 
+                                      after:left-0 after:bottom-[-4px] after:transition-all after:duration-300
+                                      hover:after:w-full"
+                            >
+                                {title}
+                            </a>
+                        {/if}
+                    {/each}
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <Avatar />
+                        </div>
                     </div>
                 </div>
             </div>

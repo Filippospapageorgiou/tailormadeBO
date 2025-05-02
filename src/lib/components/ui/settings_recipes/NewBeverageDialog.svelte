@@ -141,20 +141,6 @@
                                 ></textarea>
                             </div>
                             
-                            <div class="space-y-2">
-                                <Label for="image_url">
-                                    URL Εικόνας
-                                </Label>
-                                <input 
-                                    type="text" 
-                                    id="image_url" 
-                                    name="image_url"
-                                    bind:value={imageUrl}
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B6B4A] focus:border-[#8B6B4A]"
-                                    placeholder="https://example.com/image.jpg"
-                                />
-                            </div>
-                            
                             <div class="flex justify-end gap-3 pt-4">
                                 <button 
                                     type="button" 
